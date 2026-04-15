@@ -116,4 +116,16 @@ public class WorkspaceController {
 
         return ResponseEntity.ok(res);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> detail(@AuthenticationPrincipal Jwt jwt, @PathVariable("id") String id) {
+        WorkspaceResponse workspace = workspaceQueryService.searchByCognitoIdAndWorkspaceId(jwt.getSubject(), id);
+        Response res = Response.builder()
+                .success(true)
+                .data(workspace)
+                .message(mr.resolve(SuccessMessageCode.WORKSPACE_FOUND))
+                .code(SuccessMessageCode.WORKSPACE_FOUND)
+                .build();
+        return ResponseEntity.ok(res);
+    }
 }

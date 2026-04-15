@@ -19,4 +19,11 @@ public interface IWorkspaceRepository extends JpaRepository<Workspace, UUID> {
             nativeQuery = true
     )
     List<WorkspaceWithBoard> searchByUserId(@Param("cognitoId") String cognitoId, @Param("search") String search);
+
+    @Query(
+            value = WorkspaceSql.FIND_BY_COGNITO_ID_AND_WORKSPACE_ID,
+            nativeQuery = true
+    )
+    List<WorkspaceWithBoard> searchByUserIdAndWorkspaceId(@Param("cognitoId") String cognitoId, @Param("workspaceId") String workspaceId);
+
 }
