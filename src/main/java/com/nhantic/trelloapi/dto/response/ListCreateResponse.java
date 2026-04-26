@@ -13,6 +13,5 @@ public class ListCreateResponse {
     private String name;
     private int position;
     private String boardId;
-    private String createdAt;
     private String createdBy;
 }

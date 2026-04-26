@@ -1,7 +1,7 @@
 package com.nhantic.trelloapi.repository;
 
 import com.nhantic.trelloapi.entity.Board;
-import com.nhantic.trelloapi.repository.dto.BoardWithListAndCard;
+import com.nhantic.trelloapi.repository.dto.BoardRecord;
 import com.nhantic.trelloapi.repository.sql.BoardSql;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,6 +13,6 @@ import java.util.UUID;
 
 @Repository
 public interface IBoardRepository extends JpaRepository<Board, UUID> {
-    @Query(value = BoardSql.FIND_BY_ID, nativeQuery = true)
-    List<BoardWithListAndCard> searchById(@Param("id") UUID id);
+    @Query(value = BoardSql.FIND_BY_BOARD_ID, nativeQuery = true)
+    List<BoardRecord> searchById(@Param("id") UUID id);
 }

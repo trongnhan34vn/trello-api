@@ -1,8 +1,8 @@
 package com.nhantic.trelloapi.repository;
 
-import com.nhantic.trelloapi.repository.sql.WorkspaceSql;
 import com.nhantic.trelloapi.entity.Workspace;
-import com.nhantic.trelloapi.repository.dto.WorkspaceWithBoard;
+import com.nhantic.trelloapi.repository.dto.WorkspaceRecord;
+import com.nhantic.trelloapi.repository.sql.WorkspaceSql;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,12 +18,12 @@ public interface IWorkspaceRepository extends JpaRepository<Workspace, UUID> {
             value = WorkspaceSql.FIND_BY_COGNITO_ID,
             nativeQuery = true
     )
-    List<WorkspaceWithBoard> searchByUserId(@Param("cognitoId") String cognitoId, @Param("search") String search);
+    List<WorkspaceRecord> searchByUserId(@Param("cognitoId") String cognitoId, @Param("search") String search);
 
     @Query(
-            value = WorkspaceSql.FIND_BY_COGNITO_ID_AND_WORKSPACE_ID,
+            value = WorkspaceSql.FIND_BY_WORKSPACE_ID_FULL,
             nativeQuery = true
     )
-    List<WorkspaceWithBoard> searchByUserIdAndWorkspaceId(@Param("cognitoId") String cognitoId, @Param("workspaceId") String workspaceId);
+    List<WorkspaceRecord> searchByWorkspaceId(@Param("workspaceId") String workspaceId);
 
 }

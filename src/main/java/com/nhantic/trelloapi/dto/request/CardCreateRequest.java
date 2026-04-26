@@ -1,6 +1,7 @@
 package com.nhantic.trelloapi.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Builder
@@ -12,8 +13,9 @@ import lombok.*;
 public class CardCreateRequest {
     @NotBlank
     private String title;
+    @NotNull
     private String listId;
     private String createdBy;
+    @NotNull
     private int position;
-    private boolean isInbox;
 }

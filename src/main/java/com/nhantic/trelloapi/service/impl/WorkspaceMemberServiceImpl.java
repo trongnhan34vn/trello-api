@@ -37,7 +37,6 @@ public class WorkspaceMemberServiceImpl implements IWorkspaceMemberQueryService 
                         .build();
                 return WorkspaceMemberResponse.builder()
                         .id(wm.getId().toString())
-                        .member(userResponse)
                         .build();
             }).collect(Collectors.toList());
         } catch (Exception e) {

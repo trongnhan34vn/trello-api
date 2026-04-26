@@ -4,12 +4,14 @@ import com.nhantic.trelloapi.constant.SuccessMessageCode;
 import com.nhantic.trelloapi.dto.request.ListCreateRequest;
 import com.nhantic.trelloapi.dto.request.ListUpdateRequest;
 import com.nhantic.trelloapi.dto.response.ListCreateResponse;
+import com.nhantic.trelloapi.dto.response.ListResponse;
 import com.nhantic.trelloapi.dto.response.ListUpdateResponse;
 import com.nhantic.trelloapi.dto.response.Response;
 import com.nhantic.trelloapi.event.ListCreateEvent;
 import com.nhantic.trelloapi.helper.BuildCreatedByFromJwt;
 import com.nhantic.trelloapi.helper.MessageResolver;
 import com.nhantic.trelloapi.service.IListCommandService;
+import com.nhantic.trelloapi.service.IListQueryService;
 import com.nhantic.trelloapi.service.IUserQueryService;
 import com.nhantic.trelloapi.ws.ListWsService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,6 +27,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/lists")
 @RequiredArgsConstructor
@@ -34,6 +38,7 @@ public class ListController {
     private final IUserQueryService userQueryService;
     private final MessageResolver mr;
     private final ListWsService listWsService;
+    private final IListQueryService listQueryService;
 
     @Operation(
             summary = "Create list",
@@ -135,6 +140,19 @@ public class ListController {
                 .message(mr.resolve(SuccessMessageCode.LIST_UPDATED_SUCCESS))
                 .code(SuccessMessageCode.LIST_UPDATED_SUCCESS)
                 .data(list)
+                .build();
+        return ResponseEntity.ok(res);
+    }
+
+
+    @GetMapping()
+    public ResponseEntity<?> get(@RequestParam String boardId) {
+        List<ListResponse> lists = listQueryService.findByBoardId(boardId);
+        Response res = Response.builder()
+                .data(lists)
+                .success(true)
+                .code(SuccessMessageCode.LIST_FOUND)
+                .message(mr.resolve(SuccessMessageCode.LIST_FOUND))
                 .build();
         return ResponseEntity.ok(res);
     }

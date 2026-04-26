@@ -11,12 +11,14 @@ import com.nhantic.trelloapi.entity.Board;
 import com.nhantic.trelloapi.entity.List;
 import com.nhantic.trelloapi.exception.NotFoundException;
 import com.nhantic.trelloapi.helper.MessageResolver;
+import com.nhantic.trelloapi.repository.IBoardRepository;
 import com.nhantic.trelloapi.repository.IListRepository;
 import com.nhantic.trelloapi.service.IBoardQueryService;
 import com.nhantic.trelloapi.service.IListCommandService;
 import com.nhantic.trelloapi.service.IListQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,21 +30,16 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class ListServiceImpl implements IListCommandService, IListQueryService {
-
     private final MessageResolver mr;
     private final IListRepository listRepository;
-    private final IBoardQueryService boardQueryService;
+    private final IBoardRepository boardRepository;
 
     @Override
     @Transactional
     public ListCreateResponse create(ListCreateRequest request) {
         try {
             log.info("[List][create] Start");
-            BoardResponse boardResponse = boardQueryService.findById(request.getBoardId());
-            Board board = Board.builder()
-                    .id(UUID.fromString(boardResponse.getId()))
-                    .name(boardResponse.getName())
-                    .build();
+            Board board = boardRepository.findById(UUID.fromString(request.getBoardId())).orElseThrow(() -> new NotFoundException(ErrorMessageCode.BOARD_NOT_FOUND, mr.resolve(ErrorMessageCode.BOARD_NOT_FOUND)));
 
             List preCreate = List.builder()
                     .name(request.getName())
@@ -59,7 +56,6 @@ public class ListServiceImpl implements IListCommandService, IListQueryService {
                     .position(createdList.getPosition())
                     .boardId(createdList.getBoard().getId().toString())
                     .createdBy(createdList.getCreatedBy().toString())
-                    .createdAt(createdList.getCreatedAt().toString())
                     .build();
         } catch (Exception e) {
             log.error("[List][create] Error", e);
@@ -91,17 +87,30 @@ public class ListServiceImpl implements IListCommandService, IListQueryService {
     }
 
     @Override
+    public java.util.List<ListResponse> findByBoardId(String boardId) {
+        java.util.List<List> lists = listRepository.findListByBoard_Id(UUID.fromString(boardId), Sort.by("position"));
+        return lists.stream().map(list -> (
+                ListResponse.builder()
+                        .id(list.getId().toString())
+                        .name(list.getName())
+                        .boardId(list.getBoard().getId().toString())
+                        .position(list.getPosition())
+                        .build()
+                )).toList();
+    }
+
+    @Override
     @Transactional
     public ListUpdateResponse update(ListUpdateRequest request) {
         try {
             log.info("[List][update] Start");
-            List preUpdateList = List.builder()
-                    .id(UUID.fromString(request.getId()))
-                    .name(request.getName())
-                    .position(request.getPosition())
-                    .updatedBy(UUID.fromString(request.getUpdatedBy()))
-                    .updatedAt(LocalDateTime.now())
-                    .build();
+            List preUpdateList = listRepository.findById(UUID.fromString(request.getId())).orElseThrow(() -> new NotFoundException(ErrorMessageCode.LIST_NOT_FOUND, mr.resolve(ErrorMessageCode.LIST_NOT_FOUND)));
+
+            preUpdateList.setUpdatedBy(UUID.fromString(request.getUpdatedBy()));
+            preUpdateList.setPosition(request.getPosition());
+            preUpdateList.setName(preUpdateList.getName());
+            preUpdateList.setUpdatedAt(LocalDateTime.now());
+
             List updatedList = listRepository.save(preUpdateList);
             log.info("[List][update] Success");
             return ListUpdateResponse.builder()

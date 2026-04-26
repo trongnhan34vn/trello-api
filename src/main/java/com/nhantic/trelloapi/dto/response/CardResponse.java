@@ -15,7 +15,6 @@ public class CardResponse {
     private String startDate;
     private String dueDate;
     private int position;
-    private boolean isInbox;
     private String listId;
     private String updatedBy;
 }

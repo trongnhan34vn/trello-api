@@ -38,6 +38,7 @@ public class List {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
     private UUID createdBy;
     private UUID updatedBy;
 }

@@ -12,6 +12,7 @@ import java.util.List;
 public class ListResponse {
     private String id;
     private String name;
+    private int position;
     private List<CardResponse> cards;
     private String boardId;
     private String createdAt;
