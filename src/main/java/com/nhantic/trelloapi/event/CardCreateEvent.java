@@ -15,6 +15,5 @@ public class CardCreateEvent {
     private int position;
     private String listId;
     private String createdBy;
-    private boolean isInbox;
     private String boardId;
 }

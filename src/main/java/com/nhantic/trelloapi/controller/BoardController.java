@@ -122,7 +122,7 @@ public class BoardController {
             }
     )
     @GetMapping("/{id}")
-    public ResponseEntity<?> get(@PathVariable("id") String id) {
+    public ResponseEntity<?> get(@PathVariable String id) {
         BoardResponse board = boardQueryService.findById(id);
         Response res = Response.builder()
                 .success(true)

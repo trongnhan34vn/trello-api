@@ -10,7 +10,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class WorkspaceFullRecord {
+public class WorkspaceRecord {
     // Workspace
     private UUID workspaceId;
     private String workspaceName;

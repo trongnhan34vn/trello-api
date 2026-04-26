@@ -104,7 +104,7 @@ public class WorkspaceController {
     @PostMapping()
     public ResponseEntity<?> create(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody WorkspaceCreateRequest req) {
         String createdBy = BuildCreatedByFromJwt.execute(userQueryService, mr, jwt);
-        System.out.println("createdBy: " + createdBy);
+
         req.setCreatedBy(createdBy);
         WorkspaceCreateResponse ws = workspaceCommandService.create(req);
         Response res = Response.builder()
@@ -118,8 +118,8 @@ public class WorkspaceController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> detail(@AuthenticationPrincipal Jwt jwt, @PathVariable("id") String id) {
-        WorkspaceResponse workspace = workspaceQueryService.searchByCognitoIdAndWorkspaceId(jwt.getSubject(), id);
+    public ResponseEntity<?> detail(@PathVariable String id) {
+        WorkspaceResponse workspace = workspaceQueryService.searchByWorkspaceId(id);
         Response res = Response.builder()
                 .success(true)
                 .data(workspace)

@@ -36,8 +36,8 @@ public class Card {
     @Column(nullable = false)
     private int position;
 
-    @Column(name = "is_inbox")
-    private boolean isInbox;
+    @Column(name = "is_completed")
+    private boolean isCompleted;
 
     @ManyToOne
     @JoinColumn(name = "list_id")

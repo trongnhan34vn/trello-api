@@ -10,7 +10,6 @@ import lombok.*;
 @AllArgsConstructor
 public class CardCreateResponse {
     private String id;
-    private boolean isInbox;
     private String createdAt;
     private String listId;
     private String title;

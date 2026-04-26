@@ -15,4 +15,5 @@ public class WorkspaceResponse {
     private String name;
     private String description;
     private List<BoardResponse> boards;
+    private List<WorkspaceMemberResponse> members;
 }

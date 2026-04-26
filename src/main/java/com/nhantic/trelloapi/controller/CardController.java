@@ -4,12 +4,14 @@ import com.nhantic.trelloapi.constant.SuccessMessageCode;
 import com.nhantic.trelloapi.dto.request.CardCreateRequest;
 import com.nhantic.trelloapi.dto.request.CardUpdateRequest;
 import com.nhantic.trelloapi.dto.response.CardCreateResponse;
+import com.nhantic.trelloapi.dto.response.CardResponse;
 import com.nhantic.trelloapi.dto.response.CardUpdateResponse;
 import com.nhantic.trelloapi.dto.response.Response;
 import com.nhantic.trelloapi.event.CardCreateEvent;
 import com.nhantic.trelloapi.helper.BuildCreatedByFromJwt;
 import com.nhantic.trelloapi.helper.MessageResolver;
 import com.nhantic.trelloapi.service.ICardCommandService;
+import com.nhantic.trelloapi.service.ICardQueryService;
 import com.nhantic.trelloapi.service.IUserQueryService;
 import com.nhantic.trelloapi.ws.CardWsService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,6 +27,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/cards")
 @RequiredArgsConstructor
@@ -34,6 +38,7 @@ public class CardController {
     private final ICardCommandService cardCommandService;
     private final MessageResolver mr;
     private final CardWsService cardWsService;
+    private final ICardQueryService cardQueryService;
 
     @Operation(
             summary = "Create card",
@@ -77,7 +82,6 @@ public class CardController {
                 .title(card.getTitle())
                 .position(card.getPosition())
                 .listId(card.getListId())
-                .isInbox(card.isInbox())
                 .boardId(card.getBoardId())
                 .build();
         cardWsService.broadcastCreated(cardCreateEvent.getBoardId(), cardCreateEvent);
@@ -138,6 +142,18 @@ public class CardController {
                 .data(card)
                 .message(mr.resolve(SuccessMessageCode.CARD_UPDATED_SUCCESS))
                 .success(true)
+                .build();
+        return ResponseEntity.ok(res);
+    }
+
+    @GetMapping()
+    public ResponseEntity<?> get(@RequestParam String boardId) {
+        List<CardResponse> cards = cardQueryService.findByBoardId(boardId);
+        Response res = Response.builder()
+                .success(true)
+                .code(SuccessMessageCode.CARD_FOUND)
+                .message(mr.resolve(SuccessMessageCode.CARD_FOUND))
+                .data(cards)
                 .build();
         return ResponseEntity.ok(res);
     }

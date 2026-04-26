@@ -11,5 +11,8 @@ import lombok.NoArgsConstructor;
 @Data
 public class WorkspaceMemberResponse {
     private String id;
-    private UserResponse member;
+    private String fullName;
+    private String email;
+    private String avatarUrl;
+    private int roleId;
 }

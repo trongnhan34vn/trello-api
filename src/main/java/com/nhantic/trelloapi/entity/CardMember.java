@@ -29,6 +29,10 @@ public class CardMember {
     @JoinColumn(name = "card_id", nullable = false)
     private Card card;
 
+    @ManyToOne
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

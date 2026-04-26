@@ -22,12 +22,16 @@ public class SuccessMessageCode {
 
     public static final String LIST_CREATED_SUCCESS = "MSG_INF_400";
     public static final String LIST_UPDATED_SUCCESS = "MSG_INF_401";
+    public static final String LIST_FOUND = "MSG_INF_402";
 
     public static final String CARD_CREATED_SUCCESS = "MSG_INF_501";
     public static final String CARD_UPDATED_SUCCESS = "MSG_INF_502";
     public static final String CARD_DELETED_SUCCESS = "MSG_INF_503";
+    public static final String CARD_FOUND = "MSG_INF_504";
 
+    public static final String ROLE_FOUND="MSG_INF_700";
 
+    public static final String IMAGE_FOUND = "MSG_INF_800";
     private SuccessMessageCode() {
         // prevent instantiation
     }

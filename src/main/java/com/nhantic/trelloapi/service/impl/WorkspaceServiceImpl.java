@@ -2,19 +2,16 @@ package com.nhantic.trelloapi.service.impl;
 
 import com.nhantic.trelloapi.constant.ErrorMessageCode;
 import com.nhantic.trelloapi.constant.RoleName;
-import com.nhantic.trelloapi.constant.SuccessMessageCode;
 import com.nhantic.trelloapi.dto.request.WorkspaceCreateRequest;
 import com.nhantic.trelloapi.dto.response.BoardResponse;
-import com.nhantic.trelloapi.dto.response.WorkspaceCategoryResponse;
 import com.nhantic.trelloapi.dto.response.WorkspaceCreateResponse;
+import com.nhantic.trelloapi.dto.response.WorkspaceMemberResponse;
 import com.nhantic.trelloapi.dto.response.WorkspaceResponse;
 import com.nhantic.trelloapi.entity.*;
 import com.nhantic.trelloapi.exception.NotFoundException;
 import com.nhantic.trelloapi.helper.MessageResolver;
 import com.nhantic.trelloapi.repository.*;
-import com.nhantic.trelloapi.repository.dto.WorkspaceWithBoard;
-import com.nhantic.trelloapi.service.IUserQueryService;
-import com.nhantic.trelloapi.service.IWorkspaceCategoryQueryService;
+import com.nhantic.trelloapi.repository.dto.WorkspaceRecord;
 import com.nhantic.trelloapi.service.IWorkspaceCommandService;
 import com.nhantic.trelloapi.service.IWorkspaceQueryService;
 import lombok.RequiredArgsConstructor;
@@ -41,9 +38,9 @@ public class WorkspaceServiceImpl implements IWorkspaceQueryService, IWorkspaceC
     public List<WorkspaceResponse> searchByCognitoId(String cognitoId, String search) {
         try {
             log.info("[Workspace][search] Start: cognito=[{}] search=[{}]", cognitoId, search);
-            List<WorkspaceWithBoard> workspaceWithBoards = workspaceRepository.searchByUserId(cognitoId, search);
-            log.info("[Workspace][search] Items: {}", workspaceWithBoards.size());
-            List<WorkspaceResponse> ws = getWorkspaceResponses(workspaceWithBoards);
+            List<WorkspaceRecord> records = workspaceRepository.searchByUserId(cognitoId, search);
+            log.info("[Workspace][search] Items: {}", records.size());
+            List<WorkspaceResponse> ws = mapWorkspaceResponses(records);
             log.info("[Workspace][search] Found: {} workspaces", ws.size());
 
             return ws;
@@ -54,13 +51,14 @@ public class WorkspaceServiceImpl implements IWorkspaceQueryService, IWorkspaceC
         }
     }
 
-    private static List<WorkspaceResponse> getWorkspaceResponses(List<WorkspaceWithBoard> workspaceWithBoards) {
+    private static List<WorkspaceResponse> mapWorkspaceResponses(List<WorkspaceRecord> workspaceRecordWithBoards) {
         Map<UUID, WorkspaceResponse> workspaceResponseMap = new HashMap<>();
-        for (WorkspaceWithBoard item : workspaceWithBoards) {
+        for (WorkspaceRecord item : workspaceRecordWithBoards) {
             WorkspaceResponse workspace = workspaceResponseMap.computeIfAbsent(item.getWorkspaceId(), id ->
                     WorkspaceResponse.builder()
                             .name(item.getWorkspaceName())
                             .id(id.toString())
+                            .boards(new ArrayList<>())
                             .build()
             );
 
@@ -75,7 +73,6 @@ public class WorkspaceServiceImpl implements IWorkspaceQueryService, IWorkspaceC
         }
         return new ArrayList<>(workspaceResponseMap.values());
     }
-
 
     @Override
     public WorkspaceResponse findById(String id) {
@@ -96,25 +93,74 @@ public class WorkspaceServiceImpl implements IWorkspaceQueryService, IWorkspaceC
     }
 
     @Override
-    public WorkspaceResponse searchByCognitoIdAndWorkspaceId(String cognitoId, String workspaceId) {
+    public WorkspaceResponse searchByWorkspaceId(String workspaceId) {
         try {
-            log.info("[Workspace][searchByCognitoIdAndWorkspaceId] Start: {}", workspaceId);
-            List<WorkspaceWithBoard> workspaceWithBoards = workspaceRepository.searchByUserIdAndWorkspaceId(cognitoId, workspaceId);
-            List<WorkspaceResponse> workspaceResponses = getWorkspaceResponses(workspaceWithBoards);
-            log.info("[Workspace][searchByCognitoIdAndWorkspaceId] Found: {}", workspaceResponses.size());
-            return workspaceResponses.getFirst();
+            log.info("[Workspace][searchByWorkspaceId] Start: {}", workspaceId);
+            List<WorkspaceRecord> records = workspaceRepository.searchByWorkspaceId(workspaceId);
+            log.info("[Workspace][searchByWorkspaceId] records: {}", records.size());
+            return mapToWorkspaceResponse(records);
         } catch (Exception e) {
-            log.error("[Workspace][searchByCognitoIdAndWorkspaceId] Error: {}", e.getMessage());
+            log.error("[Workspace][searchByWorkspaceId] Error: {}", e.getMessage());
             e.printStackTrace();
             throw e;
         }
+    }
+
+    private WorkspaceResponse mapToWorkspaceResponse(List<WorkspaceRecord> records) {
+        WorkspaceResponse workspace = null;
+        List<BoardResponse> boards = new ArrayList<>();
+        List<WorkspaceMemberResponse> members = new ArrayList<>();
+
+        for (WorkspaceRecord row : records) {
+            if (workspace == null) {
+                workspace = mapWorkspace(row);
+            }
+            if ("BOARD".equals(row.getRowType()) && row.getBoardId() != null) {
+                boards.add(mapBoard(row));
+            } else if ("MEMBER".equals(row.getRowType())) {
+                members.add(mapMember(row));
+            }
+        }
+
+        if (workspace != null) {
+            workspace.setBoards(boards);
+            workspace.setMembers(members);
+        }
+
+        return workspace;
+    }
+
+    private WorkspaceResponse mapWorkspace(WorkspaceRecord row) {
+        return WorkspaceResponse.builder()
+                .id(row.getWorkspaceId().toString())
+                .name(row.getWorkspaceName())
+                .description(row.getDescription())
+                .build();
+    }
+
+    private BoardResponse mapBoard(WorkspaceRecord row) {
+        return BoardResponse.builder()
+                .id(row.getBoardId().toString())
+                .name(row.getBoardName())
+                .backgroundUrl(row.getBackgroundUrl())
+                .build();
+    }
+
+    private WorkspaceMemberResponse mapMember(WorkspaceRecord row) {
+        return WorkspaceMemberResponse.builder()
+                .id(row.getMemberId().toString())
+                .fullName(row.getMemberFullName())
+                .email(row.getMemberEmail())
+                .avatarUrl(row.getMemberAvatar())
+                .roleId(row.getMemberRoleId())
+                .build();
     }
 
     @Override
     @Transactional
     public WorkspaceCreateResponse create(WorkspaceCreateRequest req) {
         try {
-            log.info("[Workspace][create] Start: " + req.getName());
+            log.info("[Workspace][create] Start: {}", req.getName());
             // create workspaces
             WorkspaceCategory wc = workspaceCategoryRepository.findById(req.getCategoryId()).orElseThrow(() -> new NotFoundException(ErrorMessageCode.WORKSPACE_CATEGORY_NOT_FOUND, mr.resolve(ErrorMessageCode.WORKSPACE_CATEGORY_NOT_FOUND)));
             Workspace ws = Workspace.builder()
@@ -135,7 +181,7 @@ public class WorkspaceServiceImpl implements IWorkspaceQueryService, IWorkspaceC
                     .build();
             workspaceMemberRepository.save(preCreateWM);
 
-            log.info("[Workspace][create] created: " + workspace.getName());
+            log.info("[Workspace][create] created: {}", workspace.getName());
             return WorkspaceCreateResponse.builder()
                     .id(workspace.getId().toString())
                     .name(workspace.getName())

@@ -19,10 +19,16 @@ MSG_INF_302: "Board found"
 
 MSG_INF_400: "List created successfully"
 MSG_INF_401: "List updated successfully"
+MSG_INF_402: "List found"
 
 MSG_INF_501: "Card created successfully"
 MSG_INF_502: "Card updated successfully"
 MSG_INF_503: "Card deleted successfully"
+MSG_INF_504: "Card found"
+
+MSG_INF_700: "Role found"
+
+MSG_INF_800: "Image found"
 
 # ERROR
 MSG_ERR_001: "Invalid Credentials"

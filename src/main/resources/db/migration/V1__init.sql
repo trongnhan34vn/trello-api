@@ -23,13 +23,23 @@ CREATE TABLE roles
 CREATE TABLE images
 (
     id  INT PRIMARY KEY NOT NULL,
-    url TEXT            NOT NULL
+    key TEXT            NOT NULL
 );
 
 INSERT INTO roles (id, name)
 VALUES (1, 'ADMIN'),
        (2, 'MEMBER'),
        (3, 'VIEWER');
+
+INSERT INTO images (id, key)
+VALUES (1, '/images/board_background/background_1.jpg'),
+       (2, '/images/board_background/background_2.jpg'),
+       (3, '/images/board_background/background_3.jpg'),
+       (4, '/images/board_background/background_4.jpg'),
+       (5, '/images/board_background/background_5.jpg'),
+       (6, '/images/board_background/background_6.jpg'),
+       (7, '/images/board_background/background_7.jpg'),
+       (8, '/images/board_background/background_8.jpg');
 
 -- ======================
 -- User
@@ -107,7 +117,7 @@ CREATE TABLE lists
     board_id   UUID             NOT NULL REFERENCES boards (id) ON DELETE CASCADE,
     updated_by UUID             REFERENCES users (id) ON DELETE SET NULL,
     created_by UUID             NOT NULL REFERENCES users (id) ON DELETE SET NULL,
-    position   INT              NOT NULL,
+    position       TEXT             NOT NULL,
     created_at TIMESTAMP        NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP        NOT NULL DEFAULT NOW()
 );
@@ -117,18 +127,18 @@ CREATE TABLE lists
 -- ======================
 CREATE TABLE cards
 (
-    id          UUID PRIMARY KEY NOT NULL,
-    title       VARCHAR(255)     NOT NULL,
-    description TEXT,
-    start_date  TIMESTAMP,
-    due_date    TIMESTAMP,
-    is_inbox    BOOLEAN,
-    position    INT              NOT NULL,
-    list_id     UUID             NOT NULL REFERENCES lists (id) ON DELETE CASCADE,
-    created_by  UUID             NOT NULL REFERENCES users (id) ON DELETE SET NULL,
-    updated_by  UUID             REFERENCES users (id) ON DELETE SET NULL,
-    created_at  TIMESTAMP        NOT NULL DEFAULT NOW(),
-    updated_at  TIMESTAMP        NOT NULL DEFAULT NOW()
+    id           UUID PRIMARY KEY NOT NULL,
+    title        VARCHAR(255)     NOT NULL,
+    description  TEXT,
+    start_date   TIMESTAMP,
+    due_date     TIMESTAMP,
+    is_completed BOOLEAN                   DEFAULT FALSE,
+    position         TEXT             NOT NULL,
+    list_id      UUID             NOT NULL REFERENCES lists (id) ON DELETE CASCADE,
+    created_by   UUID             NOT NULL REFERENCES users (id) ON DELETE SET NULL,
+    updated_by   UUID             REFERENCES users (id) ON DELETE SET NULL,
+    created_at   TIMESTAMP        NOT NULL DEFAULT NOW(),
+    updated_at   TIMESTAMP        NOT NULL DEFAULT NOW()
 );
 
 -- ======================
@@ -193,6 +203,7 @@ CREATE TABLE card_members
     id         UUID PRIMARY KEY NOT NULL,
     user_id    UUID             NOT NULL REFERENCES users (id) ON DELETE CASCADE,
     card_id    UUID             NOT NULL REFERENCES cards (id) ON DELETE CASCADE,
+    role_id    INT              NOT NULL REFERENCES roles (id) ON DELETE CASCADE,
     created_at TIMESTAMP        NOT NULL DEFAULT NOW()
 );
 

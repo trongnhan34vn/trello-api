@@ -14,4 +14,5 @@ public class BoardResponse {
     private String name;
     private String backgroundUrl;
     private List<ListResponse> lists;
+    private List<BoardMemberResponse> members;
 }

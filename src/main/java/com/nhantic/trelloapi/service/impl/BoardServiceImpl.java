@@ -1,27 +1,23 @@
 package com.nhantic.trelloapi.service.impl;
 
 import com.nhantic.trelloapi.constant.ErrorMessageCode;
+import com.nhantic.trelloapi.constant.RoleName;
 import com.nhantic.trelloapi.dto.request.BoardCreateRequest;
-import com.nhantic.trelloapi.dto.response.BoardCreateResponse;
-import com.nhantic.trelloapi.dto.response.BoardResponse;
-import com.nhantic.trelloapi.dto.response.CardResponse;
-import com.nhantic.trelloapi.dto.response.ListResponse;
-import com.nhantic.trelloapi.entity.Board;
-import com.nhantic.trelloapi.entity.BoardMember;
-import com.nhantic.trelloapi.entity.Workspace;
+import com.nhantic.trelloapi.dto.response.*;
+import com.nhantic.trelloapi.entity.*;
 import com.nhantic.trelloapi.exception.NotFoundException;
 import com.nhantic.trelloapi.helper.MessageResolver;
-import com.nhantic.trelloapi.repository.IBoardMemberRepository;
-import com.nhantic.trelloapi.repository.IBoardRepository;
-import com.nhantic.trelloapi.repository.IWorkspaceRepository;
-import com.nhantic.trelloapi.repository.dto.BoardWithListAndCard;
+import com.nhantic.trelloapi.repository.*;
+import com.nhantic.trelloapi.repository.dto.BoardRecord;
 import com.nhantic.trelloapi.service.IBoardCommandService;
 import com.nhantic.trelloapi.service.IBoardQueryService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -32,8 +28,11 @@ public class BoardServiceImpl implements IBoardCommandService, IBoardQueryServic
     private final IWorkspaceRepository workspaceRepository;
     private final MessageResolver mr;
     private final IBoardMemberRepository boardMemberRepository;
+    private final IUserRepository userRepository;
+    private final IRoleRepository roleRepository;
 
     @Override
+    @Transactional
     public BoardCreateResponse create(BoardCreateRequest request) {
         try {
             log.info("[Board][create] Start {}", request.getName());
@@ -47,6 +46,16 @@ public class BoardServiceImpl implements IBoardCommandService, IBoardQueryServic
                     .build();
 
             Board createdBoard = boardRepository.save(board);
+
+            User user = userRepository.findById(UUID.fromString(request.getCreatedBy())).orElseThrow(() -> new NotFoundException(ErrorMessageCode.USER_NOT_FOUND, mr.resolve(ErrorMessageCode.USER_NOT_FOUND)));
+            Role role = roleRepository.findByName(RoleName.ADMIN).orElseThrow(() -> new NotFoundException(ErrorMessageCode.ROLE_NOT_FOUND, mr.resolve(ErrorMessageCode.ROLE_NOT_FOUND)));
+            BoardMember preCreateBoardMember = BoardMember.builder()
+                    .user(user)
+                    .role(role)
+                    .board(board)
+                    .build();
+            boardMemberRepository.save(preCreateBoardMember);
+
             log.info("[Board][create] Success {}", request.getName());
 
             List<BoardMember> boardMembers = boardMemberRepository.findByBoardId(createdBoard.getId());
@@ -69,13 +78,13 @@ public class BoardServiceImpl implements IBoardCommandService, IBoardQueryServic
     public BoardResponse searchById(String id) {
         try {
             log.info("[Board][searchById] Start {}", id);
-            List<BoardWithListAndCard> boardWithListAndCard = boardRepository.searchById(UUID.fromString(id));
+            List<BoardRecord> records = boardRepository.searchById(UUID.fromString(id));
 
-            if (boardWithListAndCard.isEmpty()) {
+            if (records.isEmpty()) {
                 throw new NotFoundException(ErrorMessageCode.BOARD_NOT_FOUND, mr.resolve(ErrorMessageCode.BOARD_NOT_FOUND));
             }
             log.info("[Board][searchById] Success {}", id);
-            return map(boardWithListAndCard);
+            return mapToBoardResponse(records);
         } catch (Exception e) {
             log.error("[Board][searchById] Error: {}", e.getMessage());
             e.printStackTrace();
@@ -101,43 +110,65 @@ public class BoardServiceImpl implements IBoardCommandService, IBoardQueryServic
         }
     }
 
-    private BoardResponse map(List<BoardWithListAndCard> flat) {
-        Map<UUID, BoardResponse> boardMap = new HashMap<>();
-        for (BoardWithListAndCard boardItem : flat) {
-            BoardResponse board = boardMap.computeIfAbsent(
-                    boardItem.getBoardId(),
-                    id ->  BoardResponse.builder()
-                            .id(id.toString())
-                            .name(boardItem.getBoardName())
-                            .backgroundUrl(boardItem.getBoardBackgroundUrl())
-                            .build()
+    private BoardResponse mapToBoardResponse(List<BoardRecord> records) {
+        BoardResponse board = null;
+        Map<UUID, ListResponse> listMap = new LinkedHashMap<>();
+        List<BoardMemberResponse> members = new ArrayList<>();
 
-            );
+        for (BoardRecord row : records) {
+            if (board == null) {
+                board = mapBoard(row);
+            }
 
-            Map<String, ListResponse> listMap = board.getLists().stream()
-                    .collect(Collectors.toMap(
-                            ListResponse::getId,
-                            l -> l,
-                            (a, b) -> a
-                    ));
+            if ("LIST".equals(row.getRowType())) {
+                listMap.computeIfAbsent(row.getListId(), id -> mapList(row));
 
-            ListResponse list = listMap.computeIfAbsent(
-                    boardItem.getListId().toString(),
-                    id -> {
-                        ListResponse lr = new ListResponse();
-                        lr.setId(id);
-                        lr.setName(boardItem.getListName());
-                        return lr;
-                    }
-            );
-
-            if (boardItem.getCardId() != null) {
-                CardResponse card = new CardResponse();
-                card.setId(boardItem.getCardId().toString());
-                card.setTitle(boardItem.getCardName());
-                list.getCards().add(card);
+                if (row.getCardId() != null) {
+                    listMap.get(row.getListId()).getCards().add(mapCard(row));
+                }
+            } else if ("MEMBER".equals(row.getRowType())) {
+                members.add(mapMember(row));
             }
         }
-        return new ArrayList<>(boardMap.values()).getFirst();
+
+        if (board != null) {
+            board.setLists(new ArrayList<>(listMap.values()));
+            board.setMembers(members);
+        }
+
+        return board;
+    }
+
+    private BoardResponse mapBoard(BoardRecord row) {
+        return BoardResponse.builder()
+                .id(row.getBoardId().toString())
+                .name(row.getBoardName())
+                .backgroundUrl(row.getBoardBackgroundUrl())
+                .build();
+    }
+
+    private ListResponse mapList(BoardRecord row) {
+        return ListResponse.builder()
+                .id(row.getListId().toString())
+                .name(row.getListName())
+                .cards(new ArrayList<>())
+                .build();
+    }
+
+    private CardResponse mapCard(BoardRecord row) {
+        return CardResponse.builder()
+                .id(row.getCardId().toString())
+                .title(row.getCardTitle())
+                .build();
+    }
+
+    private BoardMemberResponse mapMember(BoardRecord row) {
+        return BoardMemberResponse.builder()
+                .id(row.getMemberId().toString())
+                .fullName(row.getMemberFullName())
+                .email(row.getMemberEmail())
+                .avatarUrl(row.getMemberAvatar())
+                .roleId(row.getMemberRoleId())
+                .build();
     }
 }
