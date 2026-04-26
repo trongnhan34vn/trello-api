@@ -42,27 +42,9 @@ public class WorkspaceServiceImpl implements IWorkspaceQueryService, IWorkspaceC
         try {
             log.info("[Workspace][search] Start: cognito=[{}] search=[{}]", cognitoId, search);
             List<WorkspaceWithBoard> workspaceWithBoards = workspaceRepository.searchByUserId(cognitoId, search);
-            log.info("[Workspace][search] Items: " + workspaceWithBoards.size());
-            Map<UUID, WorkspaceResponse> workspaceResponseMap = new HashMap<>();
-            for (WorkspaceWithBoard item : workspaceWithBoards) {
-                WorkspaceResponse workspace = workspaceResponseMap.computeIfAbsent(item.getWorkspaceId(), id ->
-                        WorkspaceResponse.builder()
-                                .name(item.getWorkspaceName())
-                                .id(id.toString())
-                                .build()
-                );
-
-                if (item.getBoardId() != null) {
-                    BoardResponse board = BoardResponse.builder()
-                            .id(item.getBoardId().toString())
-                            .name(item.getBoardName())
-                            .backgroundUrl(item.getBackgroundUrl())
-                            .build();
-                    workspace.getBoards().add(board);
-                }
-            }
-            List<WorkspaceResponse> ws = new ArrayList<>(workspaceResponseMap.values());
-            log.info("[SearchWorkspace][search] Found: " + ws.size() + " workspaces");
+            log.info("[Workspace][search] Items: {}", workspaceWithBoards.size());
+            List<WorkspaceResponse> ws = getWorkspaceResponses(workspaceWithBoards);
+            log.info("[Workspace][search] Found: {} workspaces", ws.size());
 
             return ws;
         } catch (Exception e) {
@@ -70,15 +52,37 @@ public class WorkspaceServiceImpl implements IWorkspaceQueryService, IWorkspaceC
             e.printStackTrace();
             throw e;
         }
-
     }
+
+    private static List<WorkspaceResponse> getWorkspaceResponses(List<WorkspaceWithBoard> workspaceWithBoards) {
+        Map<UUID, WorkspaceResponse> workspaceResponseMap = new HashMap<>();
+        for (WorkspaceWithBoard item : workspaceWithBoards) {
+            WorkspaceResponse workspace = workspaceResponseMap.computeIfAbsent(item.getWorkspaceId(), id ->
+                    WorkspaceResponse.builder()
+                            .name(item.getWorkspaceName())
+                            .id(id.toString())
+                            .build()
+            );
+
+            if (item.getBoardId() != null) {
+                BoardResponse board = BoardResponse.builder()
+                        .id(item.getBoardId().toString())
+                        .name(item.getBoardName())
+                        .backgroundUrl(item.getBackgroundUrl())
+                        .build();
+                workspace.getBoards().add(board);
+            }
+        }
+        return new ArrayList<>(workspaceResponseMap.values());
+    }
+
 
     @Override
     public WorkspaceResponse findById(String id) {
         try {
-            log.info("[Workspace][findById] Start: " + id);
+            log.info("[Workspace][findById] Start: {}", id);
             Workspace workspace = workspaceRepository.findById(UUID.fromString(id)).orElseThrow(() -> new NotFoundException(ErrorMessageCode.WORKSPACE_NOT_FOUND, mr.resolve(ErrorMessageCode.WORKSPACE_NOT_FOUND)));
-            log.info("[Workspace][findById] Found: " + workspace.getName());
+            log.info("[Workspace][findById] Found: {}", workspace.getName());
             return WorkspaceResponse.builder()
                     .id(workspace.getId().toString())
                     .name(workspace.getName())
@@ -86,6 +90,21 @@ public class WorkspaceServiceImpl implements IWorkspaceQueryService, IWorkspaceC
                     .build();
         } catch (Exception e) {
             log.error("[Workspace][findById] Error: {}", e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    @Override
+    public WorkspaceResponse searchByCognitoIdAndWorkspaceId(String cognitoId, String workspaceId) {
+        try {
+            log.info("[Workspace][searchByCognitoIdAndWorkspaceId] Start: {}", workspaceId);
+            List<WorkspaceWithBoard> workspaceWithBoards = workspaceRepository.searchByUserIdAndWorkspaceId(cognitoId, workspaceId);
+            List<WorkspaceResponse> workspaceResponses = getWorkspaceResponses(workspaceWithBoards);
+            log.info("[Workspace][searchByCognitoIdAndWorkspaceId] Found: {}", workspaceResponses.size());
+            return workspaceResponses.getFirst();
+        } catch (Exception e) {
+            log.error("[Workspace][searchByCognitoIdAndWorkspaceId] Error: {}", e.getMessage());
             e.printStackTrace();
             throw e;
         }

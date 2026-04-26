@@ -12,6 +12,7 @@ MSG_INF_103: "User founded"
 MSG_INF_200: "Workspace created successfully"
 MSG_INF_201: "Workspaces found"
 MSG_INF_202: "Workspace Category found"
+MSG_INF_203: "Workspace members found"
 
 MSG_INF_301: "Board created successfully"
 MSG_INF_302: "Board found"

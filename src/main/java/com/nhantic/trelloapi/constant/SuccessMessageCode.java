@@ -15,6 +15,7 @@ public class SuccessMessageCode {
     public static final String WORKSPACE_CREATED_SUCCESS = "MSG_INF_200";
     public static final String WORKSPACE_FOUND = "MSG_INF_201";
     public static final String WORKSPACE_CATEGORY_FOUND = "MSG_INF_202";
+    public static final String WORKSPACE_MEMBER_FOUND = "MSG_INF_203";
 
     public static final String BOARD_CREATED_SUCCESS = "MSG_INF_301";
     public static final String BOARD_FOUND = "MSG_INF_302";
