@@ -13,4 +13,6 @@ public class BoardMemberResponse {
     private String email;
     private String avatarUrl;
     private int roleId;
+    private String userId;
+    private String boardId;
 }

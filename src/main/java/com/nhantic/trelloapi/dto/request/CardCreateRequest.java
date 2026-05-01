@@ -17,5 +17,5 @@ public class CardCreateRequest {
     private String listId;
     private String createdBy;
     @NotNull
-    private int position;
+    private String position;
 }

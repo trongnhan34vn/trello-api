@@ -5,5 +5,5 @@ import com.nhantic.trelloapi.dto.response.WorkspaceMemberResponse;
 import java.util.List;
 
 public interface IWorkspaceMemberQueryService {
-    List<WorkspaceMemberResponse> listMembersByWorkspaceId(String workspaceId);
+    List<WorkspaceMemberResponse> findByWorkspaceId(String workspaceId);
 }

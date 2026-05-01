@@ -18,6 +18,8 @@ public class ErrorMessageCode {
     public static final String CARD_NOT_FOUND = "MSG_ERR_501";
     public static final String CHECKLIST_NOT_FOUND = "MSG_ERR_601";
 
+    public static final String CHECKLIST_ITEM_NOT_FOUND = "MSG_ERR_650";
+
     public static final String ROLE_NOT_FOUND = "MSG_ERR_700";
     public static final String BAD_REQUEST = "MSG_ERR_901";
     public static final String INTERNAL_SERVER_ERROR = "MSG_ERR_999";

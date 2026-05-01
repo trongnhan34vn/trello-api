@@ -12,5 +12,5 @@ public class ListCreateEvent {
     private String id;
     private String name;
     private String boardId;
-    private int position;
+    private String position;
 }

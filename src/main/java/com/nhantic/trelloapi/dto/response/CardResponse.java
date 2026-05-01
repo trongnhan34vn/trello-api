@@ -14,7 +14,8 @@ public class CardResponse {
     private String description;
     private String startDate;
     private String dueDate;
-    private int position;
+    private String position;
     private String listId;
     private String updatedBy;
+    private boolean isCompleted;
 }

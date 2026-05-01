@@ -1,5 +1,6 @@
 package com.nhantic.trelloapi.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 @Builder
@@ -14,7 +15,10 @@ public class CardUpdateRequest {
     private String description;
     private String startDate;
     private String dueDate;
-    private int position;
+    private String position;
     private String listId;
     private String updatedBy;
+
+    @JsonProperty("isCompleted")
+    private boolean isCompleted;
 }

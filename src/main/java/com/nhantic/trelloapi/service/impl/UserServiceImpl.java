@@ -16,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -97,5 +99,25 @@ public class UserServiceImpl implements IUserCommandService, IUserQueryService {
             throw e;
         }
 
+    }
+
+    @Override
+    public List<UserResponse> findAll(String search, String current) {
+        try {
+            log.info("[User][findAll]: Start");
+            List<User> users = userRepository.searchAll(search);
+            users = users.stream().filter(u -> !u.getCognitoId().equalsIgnoreCase(current)).toList();
+            log.info("[User][findAll]: Success {} items", users.size());
+            return users.stream().map((u) -> (UserResponse.builder()
+                    .id(u.getId().toString())
+                    .email(u.getEmail())
+                    .fullName(u.getFullName())
+                    .avatarUrl(u.getAvatarUrl())
+                    .build())).toList();
+        } catch (Exception e) {
+            log.info("[User][findAll]: Error {}", e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
 }

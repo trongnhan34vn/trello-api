@@ -75,27 +75,37 @@ public class CardServiceImpl implements ICardCommandService, ICardQueryService {
     @Transactional
     public CardUpdateResponse update(CardUpdateRequest request) {
         try {
-            log.info("[Card][update] Start");
+            log.info("[Card][update] Start request=[{}]", request);
             Card preUpdateCard = cardRepository.findById(UUID.fromString(request.getId())).orElseThrow(() -> new NotFoundException(ErrorMessageCode.CARD_NOT_FOUND, mr.resolve(ErrorMessageCode.CARD_NOT_FOUND)));
 
             if (request.getTitle() != null && !request.getTitle().isEmpty()) {
+                log.info("[Card][update] update title: {}", request.getTitle());
                 preUpdateCard.setTitle(request.getTitle());
             }
 
-            if (request.getPosition() != 0) {
+            if (request.getPosition() != null) {
+                log.info("[Card][update] update position: {}", request.getPosition());
                 preUpdateCard.setPosition(request.getPosition());
             }
 
             if (request.getDescription() != null && !request.getDescription().isEmpty()) {
+                log.info("[Card][update] update description: {}", request.getDescription());
                 preUpdateCard.setDescription(request.getDescription());
             }
 
             if (request.getDueDate() != null) {
+                log.info("[Card][update] update dueDate: {}", request.getDueDate());
                 preUpdateCard.setDueDate(DatetimeUtil.parse(request.getDueDate()));
             }
 
             if (request.getStartDate() != null) {
+                log.info("[Card][update] update startDate: {}", request.getStartDate());
                 preUpdateCard.setStartDate(DatetimeUtil.parse(request.getStartDate()));
+            }
+
+            if (request.isCompleted() != preUpdateCard.isCompleted()) {
+                log.info("[Card][update] update isCompleted: {}", request.isCompleted());
+                preUpdateCard.setCompleted(request.isCompleted());
             }
 
             preUpdateCard.setUpdatedBy(UUID.fromString(request.getUpdatedBy()));
@@ -113,7 +123,8 @@ public class CardServiceImpl implements ICardCommandService, ICardQueryService {
                     .description(updatedCard.getDescription())
                     .dueDate(updatedCard.getDueDate() != null ? DatetimeUtil.parse(updatedCard.getDueDate()) : null)
                     .startDate(updatedCard.getStartDate() != null ? DatetimeUtil.parse(updatedCard.getStartDate()) : null)
-                    .updatedBy(updatedCard.getUpdatedBy().toString())
+                    .updatedBy(updatedCard.getUpdatedBy() != null ? updatedCard.getUpdatedBy().toString() : null)
+                    .isCompleted(updatedCard.isCompleted())
                     .build();
         } catch (Exception e) {
             log.error("[Card][update] Error", e);
@@ -131,6 +142,12 @@ public class CardServiceImpl implements ICardCommandService, ICardQueryService {
             return CardResponse.builder()
                     .id(card.getId().toString())
                     .title(card.getTitle())
+                    .position(card.getPosition())
+                    .description(card.getDescription())
+                    .dueDate(card.getDueDate() != null ? DatetimeUtil.parse(card.getDueDate()) : null)
+                    .startDate(card.getStartDate() != null ? DatetimeUtil.parse(card.getStartDate()) : null)
+                    .updatedBy(card.getUpdatedBy() != null ? card.getUpdatedBy().toString() : null)
+                    .isCompleted(card.isCompleted())
                     .build();
         } catch (Exception e) {
             log.error("[Card][findById] Error", e);
@@ -141,9 +158,14 @@ public class CardServiceImpl implements ICardCommandService, ICardQueryService {
 
     @Override
     public java.util.List<CardResponse> findByBoardId(String boardId) {
-        java.util.List<List> lists = listRepository.findListByBoard_Id(UUID.fromString(boardId), Sort.by("position"));
+        java.util.List<List> lists = listRepository.findListByBoard_Id(UUID.fromString(boardId), Sort.by(
+                Sort.Order.asc("position")
+        ));
         java.util.List<UUID> listIds = lists.stream().map(List::getId).toList();
-        java.util.List<Card> cards = cardRepository.findCardByListIdIn(listIds);
+        java.util.List<Card> cards = cardRepository.findCardByListIdIn(listIds, Sort.by(
+                Sort.Order.asc("listId"),
+                Sort.Order.asc("position")
+        ));
         return cards.stream().map(c -> (
                 CardResponse.builder()
                         .id(c.getId().toString())

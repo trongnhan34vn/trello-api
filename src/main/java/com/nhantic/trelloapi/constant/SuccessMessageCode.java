@@ -16,9 +16,12 @@ public class SuccessMessageCode {
     public static final String WORKSPACE_FOUND = "MSG_INF_201";
     public static final String WORKSPACE_CATEGORY_FOUND = "MSG_INF_202";
     public static final String WORKSPACE_MEMBER_FOUND = "MSG_INF_203";
+    public static final String WORKSPACE_MEMBER_CREATED_SUCCESS = "MSG_INF_204";
 
     public static final String BOARD_CREATED_SUCCESS = "MSG_INF_301";
     public static final String BOARD_FOUND = "MSG_INF_302";
+    public static final String BOARD_MEMBERS_FOUND = "MSG_INF_303";
+    public static final String BOARD_MEMBER_CREATED_SUCCESS = "MSG_INF_304";
 
     public static final String LIST_CREATED_SUCCESS = "MSG_INF_400";
     public static final String LIST_UPDATED_SUCCESS = "MSG_INF_401";
@@ -29,9 +32,17 @@ public class SuccessMessageCode {
     public static final String CARD_DELETED_SUCCESS = "MSG_INF_503";
     public static final String CARD_FOUND = "MSG_INF_504";
 
-    public static final String ROLE_FOUND="MSG_INF_700";
+    public static final String CHECKLIST_FOUND = "MSG_INF_600";
+    public static final String CHECKLIST_CREATED_SUCCESS = "MSG_INF_601";
+    public static final String CHECKLIST_UPDATED_SUCCESS = "MSG_INF_602";
+
+    public static final String CHECKLIST_ITEM_CREATED_SUCCESS = "MSG_INF_650";
+    public static final String CHECKLIST_ITEM_UPDATED_SUCCESS = "MSG_INF_651";
+
+    public static final String ROLE_FOUND = "MSG_INF_700";
 
     public static final String IMAGE_FOUND = "MSG_INF_800";
+
     private SuccessMessageCode() {
         // prevent instantiation
     }

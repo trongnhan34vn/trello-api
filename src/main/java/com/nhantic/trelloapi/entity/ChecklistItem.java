@@ -29,10 +29,10 @@ public class ChecklistItem {
     private Checklist checklist;
 
     @Column(nullable = false)
-    private Integer position;
+    private String position;
 
-    @Column(name = "is_completed", nullable = false)
-    private Boolean isCompleted = false;
+    @Column(name = "is_completed", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private boolean isCompleted = false;
 
     @Column(name = "due_date")
     private LocalDateTime dueDate;
@@ -44,4 +44,7 @@ public class ChecklistItem {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    private UUID createdBy;
+    private UUID updatedBy;
 }

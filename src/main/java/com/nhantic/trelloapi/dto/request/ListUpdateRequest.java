@@ -11,6 +11,6 @@ import lombok.*;
 public class ListUpdateRequest {
     private String id;
     private String name;
-    private int position;
+    private String position;
     private String updatedBy;
 }

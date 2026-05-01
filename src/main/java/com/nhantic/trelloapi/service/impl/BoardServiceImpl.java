@@ -58,7 +58,7 @@ public class BoardServiceImpl implements IBoardCommandService, IBoardQueryServic
 
             log.info("[Board][create] Success {}", request.getName());
 
-            List<BoardMember> boardMembers = boardMemberRepository.findByBoardId(createdBoard.getId());
+            List<BoardMember> boardMembers = boardMemberRepository.findByBoard_Id(createdBoard.getId());
             List<String> memberIds = boardMembers.stream().map(bm -> bm.getUser().getId().toString()).toList();
             return BoardCreateResponse.builder()
                     .id(createdBoard.getId().toString())

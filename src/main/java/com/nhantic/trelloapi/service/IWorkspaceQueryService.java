@@ -7,5 +7,5 @@ import java.util.List;
 public interface IWorkspaceQueryService {
     List<WorkspaceResponse> searchByCognitoId(String userId, String search);
     WorkspaceResponse findById(String id);
-    WorkspaceResponse searchByWorkspaceId(String workspaceId);
+    WorkspaceResponse searchByWorkspaceId(String workspaceId, String cognitoId);
 }

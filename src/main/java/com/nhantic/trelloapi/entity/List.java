@@ -29,7 +29,7 @@ public class List {
     private Board board;
 
     @Column(nullable = false)
-    private Integer position;
+    private String position;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

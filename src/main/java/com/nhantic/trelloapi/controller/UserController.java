@@ -16,7 +16,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -25,7 +28,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
     private final MessageResolver mr;
     private final IUserQueryService userQueryService;
-
 
     @Operation(
             summary = "Get current user",
@@ -54,6 +56,19 @@ public class UserController {
                 .message(mr.resolve(SuccessMessageCode.USER_FOUND))
                 .success(true)
                 .data(userResponse)
+                .build();
+        return ResponseEntity.ok(res);
+    }
+
+    @GetMapping("")
+    public ResponseEntity<?> getAll(@RequestParam String search, @AuthenticationPrincipal Jwt jwt) {
+
+        List<UserResponse> userResponses = userQueryService.findAll(search, jwt.getSubject());
+        Response res = Response.builder()
+                .code(SuccessMessageCode.USER_FOUND)
+                .message(mr.resolve(SuccessMessageCode.USER_FOUND))
+                .success(true)
+                .data(userResponses)
                 .build();
         return ResponseEntity.ok(res);
     }

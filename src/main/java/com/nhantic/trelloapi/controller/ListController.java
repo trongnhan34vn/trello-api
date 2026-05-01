@@ -128,7 +128,6 @@ public class ListController {
                     )
             }
     )
-    @Parameter(description = "List ID", required = true)
     @PatchMapping("/{id}")
     public ResponseEntity<?> update(@AuthenticationPrincipal Jwt jwt, @PathVariable String id, @Valid @RequestBody ListUpdateRequest request) {
         String updatedBy = BuildCreatedByFromJwt.execute(userQueryService, mr, jwt);

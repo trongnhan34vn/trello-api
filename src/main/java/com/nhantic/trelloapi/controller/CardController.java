@@ -132,7 +132,7 @@ public class CardController {
     )
     @Parameter(description = "Card ID", required = true)
     @PatchMapping("/{id}")
-    public ResponseEntity<?> update(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody CardUpdateRequest request, @PathVariable String id) {
+    public ResponseEntity<?> update(@AuthenticationPrincipal Jwt jwt, @RequestBody CardUpdateRequest request, @PathVariable String id) {
         String updatedBy = BuildCreatedByFromJwt.execute(userQueryService, mr, jwt);
         request.setUpdatedBy(updatedBy);
         request.setId(id);
@@ -154,6 +154,18 @@ public class CardController {
                 .code(SuccessMessageCode.CARD_FOUND)
                 .message(mr.resolve(SuccessMessageCode.CARD_FOUND))
                 .data(cards)
+                .build();
+        return ResponseEntity.ok(res);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> detail (@PathVariable String id) {
+        CardResponse card = cardQueryService.findById(id);
+        Response res = Response.builder()
+                .success(true)
+                .code(SuccessMessageCode.CARD_FOUND)
+                .message(mr.resolve(SuccessMessageCode.CARD_FOUND))
+                .data(card)
                 .build();
         return ResponseEntity.ok(res);
     }

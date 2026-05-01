@@ -12,7 +12,7 @@ import java.util.List;
 public class ListResponse {
     private String id;
     private String name;
-    private int position;
+    private String position;
     private List<CardResponse> cards;
     private String boardId;
     private String createdAt;
