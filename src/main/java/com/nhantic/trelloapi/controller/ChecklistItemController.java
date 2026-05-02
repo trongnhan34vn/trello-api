@@ -55,4 +55,16 @@ public class ChecklistItemController {
                 .build();
         return ResponseEntity.ok(res);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable String id) {
+        checklistItemCommandService.delete(id);
+        Response res = Response.builder()
+                .code(SuccessMessageCode.CHECKLIST_ITEM_DELETED_SUCCESS)
+                .message(mr.resolve(SuccessMessageCode.CHECKLIST_ITEM_DELETED_SUCCESS))
+                .success(true)
+                .data(null)
+                .build();
+        return ResponseEntity.ok(res);
+    }
 }

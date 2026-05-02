@@ -8,4 +8,5 @@ import com.nhantic.trelloapi.dto.response.ChecklistItemUpdateResponse;
 public interface IChecklistItemCommandService {
     ChecklistItemCreateResponse create(ChecklistItemCreateRequest request);
     ChecklistItemUpdateResponse update(ChecklistItemUpdateRequest request);
+    void delete(String id);
 }
