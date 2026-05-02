@@ -59,7 +59,7 @@ public class ChecklistController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<?> update(@RequestBody ChecklistUpdateRequest request, @RequestParam String id, @AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<?> update(@RequestBody ChecklistUpdateRequest request, @PathVariable String id, @AuthenticationPrincipal Jwt jwt) {
         String updatedBy = BuildCreatedByFromJwt.execute(userQueryService, mr, jwt);
         request.setUpdatedBy(updatedBy);
         request.setId(id);
@@ -70,6 +70,18 @@ public class ChecklistController {
                 .message(mr.resolve(SuccessMessageCode.CHECKLIST_UPDATED_SUCCESS))
                 .success(true)
                 .data(checklist)
+                .build();
+        return ResponseEntity.ok(res);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable String id) {
+        checklistCommandService.delete(id);
+        Response res = Response.builder()
+                .code(SuccessMessageCode.CHECKLIST_DELETED_SUCCESS)
+                .message(mr.resolve(SuccessMessageCode.CHECKLIST_DELETED_SUCCESS))
+                .success(true)
+                .data(null)
                 .build();
         return ResponseEntity.ok(res);
     }

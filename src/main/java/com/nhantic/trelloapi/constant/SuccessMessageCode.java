@@ -35,9 +35,11 @@ public class SuccessMessageCode {
     public static final String CHECKLIST_FOUND = "MSG_INF_600";
     public static final String CHECKLIST_CREATED_SUCCESS = "MSG_INF_601";
     public static final String CHECKLIST_UPDATED_SUCCESS = "MSG_INF_602";
+    public static final String CHECKLIST_DELETED_SUCCESS = "MSG_INF_603";
 
     public static final String CHECKLIST_ITEM_CREATED_SUCCESS = "MSG_INF_650";
     public static final String CHECKLIST_ITEM_UPDATED_SUCCESS = "MSG_INF_651";
+    public static final String CHECKLIST_ITEM_DELETED_SUCCESS = "MSG_INF_652";
 
     public static final String ROLE_FOUND = "MSG_INF_700";
 

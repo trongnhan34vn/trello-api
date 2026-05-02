@@ -32,9 +32,11 @@ MSG_INF_504: "Card found"
 MSG_INF_600: "Checklist found"
 MSG_INF_601: "Checklist created successfully"
 MSG_INF_602: "Checklist updated successfully"
+MSG_INF_603: "Checklist deleted successfully"
 
 MSG_INF_650: "Checklist Item created successfully"
 MSG_INF_651: "Checklist Item updated successfully"
+MSG_INF_652: "Checklist Item deleted successfully"
 
 MSG_INF_700: "Role found"
 

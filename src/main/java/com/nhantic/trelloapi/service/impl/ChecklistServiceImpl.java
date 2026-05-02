@@ -110,6 +110,19 @@ public class ChecklistServiceImpl implements IChecklistQueryService, IChecklistC
     }
 
     @Override
+    public void delete(String id) {
+        try {
+            log.info("[Checklist][delete] Start: request=[{}]", id);
+            checklistRepository.deleteById(UUID.fromString(id));
+            log.info("[Checklist][delete] Success");
+        } catch (Exception e) {
+            log.error("[Checklist][delete] Error: {}", e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    @Override
     public List<ChecklistResponse> findByCardId(String cardId) {
         try {
             log.info("[Checklist][findByCardId] Start: request=[{}]", cardId);
