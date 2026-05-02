@@ -11,7 +11,7 @@ import lombok.*;
 public class ListCreateResponse {
     private String id;
     private String name;
-    private int position;
+    private String position;
     private String boardId;
     private String createdBy;
 }

@@ -15,5 +15,5 @@ public class CardCreateResponse {
     private String title;
     private String createdBy;
     private String boardId;
-    private int position;
+    private String position;
 }

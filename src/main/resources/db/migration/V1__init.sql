@@ -149,7 +149,7 @@ CREATE TABLE checklists
     id         UUID PRIMARY KEY NOT NULL,
     name       VARCHAR(255)     NOT NULL,
     card_id    UUID             NOT NULL REFERENCES cards (id) ON DELETE CASCADE,
-    position   INT              NOT NULL,
+    position         TEXT             NOT NULL,
     created_by UUID             NOT NULL REFERENCES users (id) ON DELETE SET NULL,
     updated_by UUID             REFERENCES users (id) ON DELETE SET NULL,
     created_at TIMESTAMP        NOT NULL DEFAULT NOW(),
@@ -164,11 +164,13 @@ CREATE TABLE checklist_items
     id           UUID PRIMARY KEY NOT NULL,
     name         VARCHAR(255)     NOT NULL,
     checklist_id UUID             NOT NULL REFERENCES checklists (id) ON DELETE CASCADE,
-    position     INT              NOT NULL,
+    position         TEXT             NOT NULL,
     is_completed BOOLEAN          NOT NULL DEFAULT FALSE,
     due_date     TIMESTAMP,
     created_at   TIMESTAMP        NOT NULL DEFAULT NOW(),
-    updated_at   TIMESTAMP        NOT NULL DEFAULT NOW()
+    updated_at   TIMESTAMP        NOT NULL DEFAULT NOW(),
+    created_by   UUID             NOT NULL REFERENCES users (id) ON DELETE SET NULL,
+    updated_by   UUID             REFERENCES users (id) ON DELETE SET NULL
 );
 
 -- ======================
@@ -229,10 +231,6 @@ ALTER TABLE board_members
 -- 4. CardMember
 ALTER TABLE card_members
     ADD CONSTRAINT uq_card_member UNIQUE (user_id, card_id);
-
--- 5. Card: check position >= 0
-ALTER TABLE cards
-    ADD CONSTRAINT chk_card_position CHECK (position >= 0);
 
 -- 6. ChecklistItem: check is_completed valid
 ALTER TABLE checklist_items

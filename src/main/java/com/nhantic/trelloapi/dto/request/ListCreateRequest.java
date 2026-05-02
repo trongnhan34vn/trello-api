@@ -14,7 +14,7 @@ public class ListCreateRequest {
     @NotBlank
     private String name;
     @NotNull
-    private int position;
+    private String position;
     @NotNull
     private String boardId;
     private String createdBy;

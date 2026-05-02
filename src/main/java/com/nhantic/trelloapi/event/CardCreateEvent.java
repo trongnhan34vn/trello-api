@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class CardCreateEvent {
     private String id;
     private String title;
-    private int position;
+    private String position;
     private String listId;
     private String createdBy;
     private String boardId;

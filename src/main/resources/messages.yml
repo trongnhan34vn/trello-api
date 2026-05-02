@@ -13,9 +13,12 @@ MSG_INF_200: "Workspace created successfully"
 MSG_INF_201: "Workspaces found"
 MSG_INF_202: "Workspace Category found"
 MSG_INF_203: "Workspace members found"
+MSG_INF_204: "Invite new members successfully"
 
 MSG_INF_301: "Board created successfully"
 MSG_INF_302: "Board found"
+MSG_INF_303: "Board members found"
+MSG_INF_304: "Invite new members successfully"
 
 MSG_INF_400: "List created successfully"
 MSG_INF_401: "List updated successfully"
@@ -25,6 +28,13 @@ MSG_INF_501: "Card created successfully"
 MSG_INF_502: "Card updated successfully"
 MSG_INF_503: "Card deleted successfully"
 MSG_INF_504: "Card found"
+
+MSG_INF_600: "Checklist found"
+MSG_INF_601: "Checklist created successfully"
+MSG_INF_602: "Checklist updated successfully"
+
+MSG_INF_650: "Checklist Item created successfully"
+MSG_INF_651: "Checklist Item updated successfully"
 
 MSG_INF_700: "Role found"
 
@@ -46,7 +56,10 @@ MSG_ERR_201: "Workspace not found"
 MSG_ERR_301: "Board not found"
 MSG_ERR_401: "List not found"
 MSG_ERR_501: "Card not found"
-MSG_ERR_601: "Checklist not found"
+
+MSG_ERR_600: "Checklist not found"
+
+MSG_ERR_650: "Checklist Item not found"
 
 MSG_ERR_700: "Role not found"
 

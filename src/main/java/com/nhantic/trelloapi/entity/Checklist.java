@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -29,7 +30,7 @@ public class Checklist {
     private Card card;
 
     @Column(nullable = false)
-    private Integer position;
+    private String position;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -41,4 +42,8 @@ public class Checklist {
 
     private UUID createdBy;
     private UUID updatedBy;
+
+    @OneToMany(mappedBy = "checklist", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy(value = "position ASC")
+    private List<ChecklistItem> checklistItems;
 }

@@ -2,25 +2,48 @@ package com.nhantic.trelloapi.repository.sql;
 
 public class WorkspaceSql {
     public static final String FIND_BY_COGNITO_ID = """
-                    SELECT
-                        w.id             AS workspaceId,
-                        w.name           AS workspaceName,
-                        w.description    AS description,
-                        'BOARD'          AS rowType,
-                        b.id             AS boardId,
-                        b.name           AS boardName,
-                        b.background_url AS backgroundUrl,
-                        NULL             AS memberId,
-                        NULL             AS memberFullName,
-                        NULL             AS memberEmail,
-                        NULL             AS memberAvatar,
-                        NULL             AS memberRoleId
-                    FROM workspaces w
-                    JOIN workspace_members wm ON w.id = wm.workspace_id
-                    LEFT JOIN boards b ON b.workspace_id = w.id
-                    JOIN users u ON u.id = wm.user_id
-                    WHERE u.cognito_id = :cognitoId
-                    AND (:search IS NULL OR b.name IS NULL OR LOWER(b.name) LIKE LOWER(CONCAT('%', :search, '%')))
+                SELECT
+                    w.id             AS workspaceId,
+                    w.name           AS workspaceName,
+                    w.description    AS description,
+                    'WORKSPACE'      AS rowType,
+                    NULL             AS boardId,
+                    NULL             AS boardName,
+                    NULL             AS backgroundUrl,
+                    NULL             AS memberId,
+                    NULL             AS memberFullName,
+                    NULL             AS memberEmail,
+                    NULL             AS memberAvatar,
+                    NULL             AS memberRoleId
+                FROM workspaces w
+                JOIN workspace_members wm ON w.id = wm.workspace_id
+                JOIN users u ON u.id = wm.user_id
+                WHERE u.cognito_id = :cognitoId
+            
+                UNION ALL
+            
+                SELECT
+                    w.id             AS workspaceId,
+                    w.name           AS workspaceName,
+                    w.description    AS description,
+                    'BOARD'          AS rowType,
+                    b.id             AS boardId,
+                    b.name           AS boardName,
+                    b.background_url AS backgroundUrl,
+                    NULL             AS memberId,
+                    NULL             AS memberFullName,
+                    NULL             AS memberEmail,
+                    NULL             AS memberAvatar,
+                    NULL             AS memberRoleId
+                FROM boards b
+                JOIN board_members bm ON b.id = bm.board_id
+                JOIN users u ON u.id = bm.user_id
+                JOIN workspaces w ON w.id = b.workspace_id
+                WHERE u.cognito_id = :cognitoId
+                AND (
+                    :search IS NULL 
+                    OR LOWER(b.name) LIKE LOWER(CONCAT('%', :search, '%'))
+                )
             """;
 
     public static final String FIND_BY_WORKSPACE_ID_FULL = """
@@ -37,9 +60,12 @@ public class WorkspaceSql {
                         NULL          AS memberEmail,
                         NULL          AS memberAvatar,
                         NULL          AS memberRoleId
-                    FROM workspaces w
-                    LEFT JOIN boards b ON b.workspace_id = w.id
-                    WHERE w.id::text = :workspaceId
+                        FROM boards b
+                        JOIN board_members bm ON b.id = bm.board_id
+                        JOIN users u ON u.id = bm.user_id
+                        JOIN workspaces w ON w.id = b.workspace_id
+                        WHERE w.id::text = :workspaceId
+                          AND u.cognito_id = :cognitoId
             
                     UNION ALL
             

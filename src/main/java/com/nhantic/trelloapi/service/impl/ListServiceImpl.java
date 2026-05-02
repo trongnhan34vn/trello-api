@@ -3,7 +3,6 @@ package com.nhantic.trelloapi.service.impl;
 import com.nhantic.trelloapi.constant.ErrorMessageCode;
 import com.nhantic.trelloapi.dto.request.ListCreateRequest;
 import com.nhantic.trelloapi.dto.request.ListUpdateRequest;
-import com.nhantic.trelloapi.dto.response.BoardResponse;
 import com.nhantic.trelloapi.dto.response.ListCreateResponse;
 import com.nhantic.trelloapi.dto.response.ListResponse;
 import com.nhantic.trelloapi.dto.response.ListUpdateResponse;
@@ -13,7 +12,6 @@ import com.nhantic.trelloapi.exception.NotFoundException;
 import com.nhantic.trelloapi.helper.MessageResolver;
 import com.nhantic.trelloapi.repository.IBoardRepository;
 import com.nhantic.trelloapi.repository.IListRepository;
-import com.nhantic.trelloapi.service.IBoardQueryService;
 import com.nhantic.trelloapi.service.IListCommandService;
 import com.nhantic.trelloapi.service.IListQueryService;
 import lombok.RequiredArgsConstructor;
@@ -88,7 +86,7 @@ public class ListServiceImpl implements IListCommandService, IListQueryService {
 
     @Override
     public java.util.List<ListResponse> findByBoardId(String boardId) {
-        java.util.List<List> lists = listRepository.findListByBoard_Id(UUID.fromString(boardId), Sort.by("position"));
+        java.util.List<List> lists = listRepository.findListByBoard_Id(UUID.fromString(boardId), Sort.by(Sort.Direction.ASC,"position"));
         return lists.stream().map(list -> (
                 ListResponse.builder()
                         .id(list.getId().toString())
@@ -103,12 +101,16 @@ public class ListServiceImpl implements IListCommandService, IListQueryService {
     @Transactional
     public ListUpdateResponse update(ListUpdateRequest request) {
         try {
-            log.info("[List][update] Start");
+            log.info("[List][update] Start {}", request);
             List preUpdateList = listRepository.findById(UUID.fromString(request.getId())).orElseThrow(() -> new NotFoundException(ErrorMessageCode.LIST_NOT_FOUND, mr.resolve(ErrorMessageCode.LIST_NOT_FOUND)));
 
             preUpdateList.setUpdatedBy(UUID.fromString(request.getUpdatedBy()));
-            preUpdateList.setPosition(request.getPosition());
-            preUpdateList.setName(preUpdateList.getName());
+            if (request.getPosition() != null) {
+                preUpdateList.setPosition(request.getPosition());
+            }
+            if (request.getName() != null) {
+                preUpdateList.setName(request.getName());
+            }
             preUpdateList.setUpdatedAt(LocalDateTime.now());
 
             List updatedList = listRepository.save(preUpdateList);

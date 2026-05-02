@@ -118,8 +118,8 @@ public class WorkspaceController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> detail(@PathVariable String id) {
-        WorkspaceResponse workspace = workspaceQueryService.searchByWorkspaceId(id);
+    public ResponseEntity<?> detail(@PathVariable String id, @AuthenticationPrincipal Jwt jwt) {
+        WorkspaceResponse workspace = workspaceQueryService.searchByWorkspaceId(id, jwt.getSubject());
         Response res = Response.builder()
                 .success(true)
                 .data(workspace)

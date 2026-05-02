@@ -34,7 +34,7 @@ public class Card {
     private LocalDateTime dueDate;
 
     @Column(nullable = false)
-    private int position;
+    private String position;
 
     @Column(name = "is_completed")
     private boolean isCompleted;

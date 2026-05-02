@@ -93,10 +93,10 @@ public class WorkspaceServiceImpl implements IWorkspaceQueryService, IWorkspaceC
     }
 
     @Override
-    public WorkspaceResponse searchByWorkspaceId(String workspaceId) {
+    public WorkspaceResponse searchByWorkspaceId(String workspaceId, String cognitoId) {
         try {
             log.info("[Workspace][searchByWorkspaceId] Start: {}", workspaceId);
-            List<WorkspaceRecord> records = workspaceRepository.searchByWorkspaceId(workspaceId);
+            List<WorkspaceRecord> records = workspaceRepository.searchByWorkspaceId(workspaceId, cognitoId);
             log.info("[Workspace][searchByWorkspaceId] records: {}", records.size());
             return mapToWorkspaceResponse(records);
         } catch (Exception e) {
