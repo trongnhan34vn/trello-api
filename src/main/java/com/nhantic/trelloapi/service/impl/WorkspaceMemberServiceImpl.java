@@ -78,6 +78,7 @@ public class WorkspaceMemberServiceImpl implements IWorkspaceMemberQueryService,
                         .user(user)
                         .workspace(workspace)
                         .role(role)
+                        .createdBy(UUID.fromString(request.getCreatedBy()))
                         .build();
                 preCreatedWorkspaceMembers.add(preCreatedWorkspaceMember);
             }

@@ -25,6 +25,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/boards")
 @RequiredArgsConstructor
@@ -129,6 +131,19 @@ public class BoardController {
                 .message(mr.resolve(SuccessMessageCode.BOARD_FOUND))
                 .code(SuccessMessageCode.BOARD_FOUND)
                 .data(board)
+                .build();
+        return ResponseEntity.ok(res);
+    }
+
+    @GetMapping()
+    public ResponseEntity<?> list(@RequestParam(name = "search", required = false) String search, @AuthenticationPrincipal Jwt jwt) {
+        String cognitoId = jwt.getSubject();
+        List<BoardResponse> boards = boardQueryService.searchByCognitoId(cognitoId, search);
+        Response res = Response.builder()
+                .success(true)
+                .message(mr.resolve(SuccessMessageCode.BOARD_FOUND))
+                .code(SuccessMessageCode.BOARD_FOUND)
+                .data(boards)
                 .build();
         return ResponseEntity.ok(res);
     }

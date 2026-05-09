@@ -15,4 +15,5 @@ public class BoardResponse {
     private String backgroundUrl;
     private List<ListResponse> lists;
     private List<BoardMemberResponse> members;
+    private String workspaceName;
 }

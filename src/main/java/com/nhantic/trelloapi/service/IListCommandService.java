@@ -8,4 +8,5 @@ import com.nhantic.trelloapi.dto.response.ListUpdateResponse;
 public interface IListCommandService {
     ListCreateResponse create(ListCreateRequest request);
     ListUpdateResponse update(ListUpdateRequest request);
+    void delete(String id);
 }

@@ -126,4 +126,18 @@ public class ListServiceImpl implements IListCommandService, IListQueryService {
             throw e;
         }
     }
+
+    @Override
+    @Transactional
+    public void delete(String id) {
+        try {
+            log.info("[List][delete] Start {}", id);
+            listRepository.deleteById(UUID.fromString(id));
+            log.info("[List][delete] Success");
+        } catch (Exception e) {
+            log.error("[List][delete] Error", e);
+            e.printStackTrace();
+            throw e;
+        }
+    }
 }

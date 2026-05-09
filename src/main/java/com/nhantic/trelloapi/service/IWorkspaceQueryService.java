@@ -5,7 +5,7 @@ import com.nhantic.trelloapi.dto.response.WorkspaceResponse;
 import java.util.List;
 
 public interface IWorkspaceQueryService {
-    List<WorkspaceResponse> searchByCognitoId(String userId, String search);
+    List<WorkspaceResponse> searchByCognitoId(String userId);
     WorkspaceResponse findById(String id);
     WorkspaceResponse searchByWorkspaceId(String workspaceId, String cognitoId);
 }

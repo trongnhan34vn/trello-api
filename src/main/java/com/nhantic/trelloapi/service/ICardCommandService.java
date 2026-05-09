@@ -8,4 +8,5 @@ import com.nhantic.trelloapi.dto.response.CardUpdateResponse;
 public interface ICardCommandService {
     CardCreateResponse create(CardCreateRequest request);
     CardUpdateResponse update(CardUpdateRequest request);
+    void delete(String id);
 }

@@ -40,10 +40,6 @@ public class WorkspaceSql {
                 JOIN users u ON u.id = bm.user_id
                 JOIN workspaces w ON w.id = b.workspace_id
                 WHERE u.cognito_id = :cognitoId
-                AND (
-                    :search IS NULL 
-                    OR LOWER(b.name) LIKE LOWER(CONCAT('%', :search, '%'))
-                )
             """;
 
     public static final String FIND_BY_WORKSPACE_ID_FULL = """

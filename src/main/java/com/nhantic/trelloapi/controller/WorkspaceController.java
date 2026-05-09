@@ -60,8 +60,8 @@ public class WorkspaceController {
             }
     )
     @GetMapping()
-    public ResponseEntity<?> list(@AuthenticationPrincipal Jwt jwt, @RequestParam(name = "search", required = false) String search) {
-        List<WorkspaceResponse> workspaces = workspaceQueryService.searchByCognitoId(jwt.getSubject(), search);
+    public ResponseEntity<?> list(@AuthenticationPrincipal Jwt jwt) {
+        List<WorkspaceResponse> workspaces = workspaceQueryService.searchByCognitoId(jwt.getSubject());
         Response res = Response.builder()
                 .success(true)
                 .data(workspaces)
@@ -117,6 +117,36 @@ public class WorkspaceController {
         return ResponseEntity.ok(res);
     }
 
+    @Operation(
+            summary = "Get workspace detail",
+            description = "Retrieve detailed information of a workspace by ID",
+            parameters = {
+                    @Parameter(
+                            name = "id",
+                            description = "Workspace ID",
+                            required = true
+                    )
+            },
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Workspace retrieved successfully",
+                            content = @Content(
+                                    schema = @Schema(implementation = Response.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Unauthorized",
+                            content = @Content(schema = @Schema())
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Workspace not found",
+                            content = @Content(schema = @Schema())
+                    )
+            }
+    )
     @GetMapping("/{id}")
     public ResponseEntity<?> detail(@PathVariable String id, @AuthenticationPrincipal Jwt jwt) {
         WorkspaceResponse workspace = workspaceQueryService.searchByWorkspaceId(id, jwt.getSubject());

@@ -35,10 +35,10 @@ public class WorkspaceServiceImpl implements IWorkspaceQueryService, IWorkspaceC
     private final IRoleRepository roleRepository;
 
     @Override
-    public List<WorkspaceResponse> searchByCognitoId(String cognitoId, String search) {
+    public List<WorkspaceResponse> searchByCognitoId(String cognitoId) {
         try {
-            log.info("[Workspace][search] Start: cognito=[{}] search=[{}]", cognitoId, search);
-            List<WorkspaceRecord> records = workspaceRepository.searchByUserId(cognitoId, search);
+            log.info("[Workspace][search] Start: cognito=[{}]", cognitoId);
+            List<WorkspaceRecord> records = workspaceRepository.searchByUserId(cognitoId);
             log.info("[Workspace][search] Items: {}", records.size());
             List<WorkspaceResponse> ws = mapWorkspaceResponses(records);
             log.info("[Workspace][search] Found: {} workspaces", ws.size());
@@ -178,6 +178,7 @@ public class WorkspaceServiceImpl implements IWorkspaceQueryService, IWorkspaceC
                     .user(user)
                     .workspace(workspace)
                     .role(role)
+                    .createdBy(UUID.fromString(req.getCreatedBy()))
                     .build();
             workspaceMemberRepository.save(preCreateWM);
 

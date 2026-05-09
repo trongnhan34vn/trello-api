@@ -155,4 +155,16 @@ public class ListController {
                 .build();
         return ResponseEntity.ok(res);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable String id) {
+        listCommandService.delete(id);
+        Response res = Response.builder()
+                .data(null)
+                .success(true)
+                .code(SuccessMessageCode.LIST_DELETE_SUCCESS)
+                .message(mr.resolve(SuccessMessageCode.LIST_DELETE_SUCCESS))
+                .build();
+        return ResponseEntity.ok(res);
+    }
 }

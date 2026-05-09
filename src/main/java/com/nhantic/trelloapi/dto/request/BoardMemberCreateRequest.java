@@ -19,4 +19,6 @@ public class BoardMemberCreateRequest {
     @NotNull
     @Builder.Default
     private int roleId = 2;
+
+    private String createdBy;
 }

@@ -6,6 +6,7 @@ import com.nhantic.trelloapi.dto.response.UserResponse;
 import com.nhantic.trelloapi.helper.MessageResolver;
 import com.nhantic.trelloapi.service.IUserQueryService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -60,6 +61,28 @@ public class UserController {
         return ResponseEntity.ok(res);
     }
 
+    @Operation(
+            summary = "Search users",
+            description = "Search for users by email or name, excluding current user",
+            parameters = {
+                    @Parameter(
+                            name = "search",
+                            description = "Search keyword (email or name)",
+                            required = true
+                    )
+            },
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Users retrieved successfully",
+                            content = @Content(schema = @Schema(implementation = Response.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Unauthorized"
+                    )
+            }
+    )
     @GetMapping("")
     public ResponseEntity<?> getAll(@RequestParam String search, @AuthenticationPrincipal Jwt jwt) {
 

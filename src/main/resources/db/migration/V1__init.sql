@@ -182,7 +182,8 @@ CREATE TABLE workspace_members
     user_id      UUID             NOT NULL REFERENCES "users" (id) ON DELETE CASCADE,
     workspace_id UUID             NOT NULL REFERENCES workspaces (id) ON DELETE CASCADE,
     role_id      INT              NOT NULL REFERENCES roles (id) ON DELETE CASCADE,
-    created_at   TIMESTAMP        NOT NULL DEFAULT NOW()
+    created_at   TIMESTAMP        NOT NULL DEFAULT NOW(),
+    created_by   UUID             NOT NULL REFERENCES users (id) ON DELETE SET NULL
 );
 
 -- ======================
@@ -194,7 +195,8 @@ CREATE TABLE board_members
     user_id    UUID             NOT NULL REFERENCES "users" (id) ON DELETE CASCADE,
     board_id   UUID             NOT NULL REFERENCES boards (id) ON DELETE CASCADE,
     role_id    INT              NOT NULL REFERENCES roles (id) ON DELETE CASCADE,
-    created_at TIMESTAMP        NOT NULL DEFAULT NOW()
+    created_at TIMESTAMP        NOT NULL DEFAULT NOW(),
+    created_by   UUID             NOT NULL REFERENCES users (id) ON DELETE SET NULL
 );
 
 -- ======================
@@ -205,8 +207,8 @@ CREATE TABLE card_members
     id         UUID PRIMARY KEY NOT NULL,
     user_id    UUID             NOT NULL REFERENCES users (id) ON DELETE CASCADE,
     card_id    UUID             NOT NULL REFERENCES cards (id) ON DELETE CASCADE,
-    role_id    INT              NOT NULL REFERENCES roles (id) ON DELETE CASCADE,
-    created_at TIMESTAMP        NOT NULL DEFAULT NOW()
+    created_at TIMESTAMP        NOT NULL DEFAULT NOW(),
+    created_by   UUID             NOT NULL REFERENCES users (id) ON DELETE SET NULL
 );
 
 -- ======================

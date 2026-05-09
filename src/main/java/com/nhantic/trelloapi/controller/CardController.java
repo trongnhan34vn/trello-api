@@ -130,7 +130,6 @@ public class CardController {
                     )
             }
     )
-    @Parameter(description = "Card ID", required = true)
     @PatchMapping("/{id}")
     public ResponseEntity<?> update(@AuthenticationPrincipal Jwt jwt, @RequestBody CardUpdateRequest request, @PathVariable String id) {
         String updatedBy = BuildCreatedByFromJwt.execute(userQueryService, mr, jwt);
@@ -146,6 +145,31 @@ public class CardController {
         return ResponseEntity.ok(res);
     }
 
+    @Operation(
+            summary = "Get cards by board",
+            description = "Retrieve all cards belonging to a specific board",
+            parameters = {
+                    @Parameter(
+                            name = "boardId",
+                            description = "Board ID to filter cards",
+                            required = true
+                    )
+            },
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Cards retrieved successfully",
+                            content = @Content(
+                                    schema = @Schema(implementation = Response.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Unauthorized",
+                            content = @Content(schema = @Schema())
+                    )
+            }
+    )
     @GetMapping()
     public ResponseEntity<?> get(@RequestParam String boardId) {
         List<CardResponse> cards = cardQueryService.findByBoardId(boardId);
@@ -158,6 +182,36 @@ public class CardController {
         return ResponseEntity.ok(res);
     }
 
+    @Operation(
+            summary = "Get card detail",
+            description = "Retrieve detailed information of a card by ID",
+            parameters = {
+                    @Parameter(
+                            name = "id",
+                            description = "Card ID",
+                            required = true
+                    )
+            },
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Card retrieved successfully",
+                            content = @Content(
+                                    schema = @Schema(implementation = Response.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Unauthorized",
+                            content = @Content(schema = @Schema())
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Card not found",
+                            content = @Content(schema = @Schema())
+                    )
+            }
+    )
     @GetMapping("/{id}")
     public ResponseEntity<?> detail (@PathVariable String id) {
         CardResponse card = cardQueryService.findById(id);
@@ -166,6 +220,48 @@ public class CardController {
                 .code(SuccessMessageCode.CARD_FOUND)
                 .message(mr.resolve(SuccessMessageCode.CARD_FOUND))
                 .data(card)
+                .build();
+        return ResponseEntity.ok(res);
+    }
+
+    @Operation(
+            summary = "Delete card",
+            description = "Delete a card by ID",
+            parameters = {
+                    @Parameter(
+                            name = "id",
+                            description = "Card ID",
+                            required = true
+                    )
+            },
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Card deleted successfully",
+                            content = @Content(
+                                    schema = @Schema(implementation = Response.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Unauthorized",
+                            content = @Content(schema = @Schema())
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Card not found",
+                            content = @Content(schema = @Schema())
+                    )
+            }
+    )
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable String id) {
+        cardCommandService.delete(id);
+        Response res = Response.builder()
+                .success(true)
+                .code(SuccessMessageCode.CARD_DELETED_SUCCESS)
+                .message(mr.resolve(SuccessMessageCode.CARD_DELETED_SUCCESS))
+                .data(null)
                 .build();
         return ResponseEntity.ok(res);
     }
