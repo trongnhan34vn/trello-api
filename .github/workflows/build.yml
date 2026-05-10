@@ -41,15 +41,10 @@ jobs:
             cat > /home/ubuntu/app/.env << 'EOF'
             ${{ secrets.ENV_FILE }}
             EOF
-
+      
             JAR_FILE=$(ls /home/ubuntu/app/target/*.jar | grep -v 'original' | head -1)
-
-            pkill -f 'java -jar' || true
-            sleep 2
-
-            nohup env $(grep -v '^#' /home/ubuntu/app/.env | xargs) \
-              java -jar "$JAR_FILE" \
-              > /home/ubuntu/app/app.log 2>&1 &
-            disown $!
-
-            echo "Deployed PID: $!"
+            cp "$JAR_FILE" /home/ubuntu/app/app.jar
+      
+            sudo systemctl restart nello-api
+            sleep 3
+            sudo systemctl status nello-api --no-pager
