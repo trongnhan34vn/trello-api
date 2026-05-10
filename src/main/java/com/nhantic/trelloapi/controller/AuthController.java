@@ -67,7 +67,7 @@ public class AuthController {
                 .httpOnly(true)
                 .secure(false)
                 .domain(".compute.amazonaws.com")
-                .sameSite("None")
+                .sameSite("Lax")
                 .maxAge(token.getExpiresIn())
                 .path(COOKIE_ROOT_PATH)
                 .build();
@@ -75,7 +75,7 @@ public class AuthController {
                 .httpOnly(true)
                 .secure(false)
                 .domain(".compute.amazonaws.com")
-                .sameSite("None")
+                .sameSite("Lax")
                 .maxAge(token.getRefreshExpiresIn())
                 .path(COOKIE_ROOT_PATH)
                 .build();
