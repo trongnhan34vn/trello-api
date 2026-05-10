@@ -14,6 +14,7 @@ public class BoardRecord {
     private UUID boardId;
     private String boardName;
     private String boardBackgroundUrl;
+    private String workspaceName;
 
     // Row type
     private String rowType;
@@ -30,4 +31,11 @@ public class BoardRecord {
     private String memberEmail;
     private String memberAvatar;
     private Integer memberRoleId;
+
+    public BoardRecord (UUID boardId, String boardName, String boardBackgroundUrl, String workspaceName) {
+        this.boardId = boardId;
+        this.boardName = boardName;
+        this.boardBackgroundUrl = boardBackgroundUrl;
+        this.workspaceName = workspaceName;
+    }
 }

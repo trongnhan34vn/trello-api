@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -53,6 +52,7 @@ public class BoardServiceImpl implements IBoardCommandService, IBoardQueryServic
                     .user(user)
                     .role(role)
                     .board(board)
+                    .createdBy(UUID.fromString(request.getCreatedBy()))
                     .build();
             boardMemberRepository.save(preCreateBoardMember);
 
@@ -105,6 +105,25 @@ public class BoardServiceImpl implements IBoardCommandService, IBoardQueryServic
                     .build();
         } catch (Exception e) {
             log.error("[Board][findById] Error: {}", e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    @Override
+    public List<BoardResponse> searchByCognitoId(String cognitoId, String search) {
+        try {
+            log.info("[Board][searchByCognitoId] Start cognitoId=[{}] search=[{}]", cognitoId, search);
+            List<BoardRecord> boardRecords = boardRepository.searchByCognitoId(cognitoId,search);
+            log.info("[Board][searchByCognitoId] Success: total=[{} items]", boardRecords.size());
+            return boardRecords.stream().map(br -> BoardResponse.builder()
+                    .id(br.getBoardId().toString())
+                    .name(br.getBoardName())
+                    .backgroundUrl(br.getBoardBackgroundUrl())
+                    .workspaceName(br.getWorkspaceName())
+                    .build()).toList();
+        } catch (Exception e) {
+            log.error("[Board][searchByCognitoId] Error: {}", e.getMessage());
             e.printStackTrace();
             throw e;
         }

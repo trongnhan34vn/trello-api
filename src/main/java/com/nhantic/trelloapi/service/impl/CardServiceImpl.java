@@ -1,13 +1,13 @@
 package com.nhantic.trelloapi.service.impl;
 
 import com.nhantic.trelloapi.constant.ErrorMessageCode;
-import com.nhantic.trelloapi.constant.RoleName;
 import com.nhantic.trelloapi.dto.request.CardCreateRequest;
 import com.nhantic.trelloapi.dto.request.CardUpdateRequest;
 import com.nhantic.trelloapi.dto.response.CardCreateResponse;
 import com.nhantic.trelloapi.dto.response.CardResponse;
 import com.nhantic.trelloapi.dto.response.CardUpdateResponse;
-import com.nhantic.trelloapi.entity.*;
+import com.nhantic.trelloapi.entity.Card;
+import com.nhantic.trelloapi.entity.List;
 import com.nhantic.trelloapi.exception.NotFoundException;
 import com.nhantic.trelloapi.helper.MessageResolver;
 import com.nhantic.trelloapi.repository.*;
@@ -29,9 +29,6 @@ public class CardServiceImpl implements ICardCommandService, ICardQueryService {
     private final ICardRepository cardRepository;
     private final IListRepository listRepository;
     private final MessageResolver mr;
-    private final IUserRepository userRepository;
-    private final IRoleRepository roleRepository;
-    private final ICardMemberRepository cardMemberRepository;
 
     @Override
     @Transactional
@@ -45,15 +42,6 @@ public class CardServiceImpl implements ICardCommandService, ICardQueryService {
             preCreateCard.setCreatedBy(UUID.fromString(request.getCreatedBy()));
             preCreateCard.setPosition(request.getPosition());
             Card createdCard = cardRepository.save(preCreateCard);
-
-            User user = userRepository.findById(UUID.fromString(request.getCreatedBy())).orElseThrow(() -> new NotFoundException(ErrorMessageCode.USER_NOT_FOUND, mr.resolve(ErrorMessageCode.USER_NOT_FOUND)));
-            Role role = roleRepository.findByName(RoleName.ADMIN).orElseThrow(() -> new NotFoundException(ErrorMessageCode.ROLE_NOT_FOUND, mr.resolve(ErrorMessageCode.ROLE_NOT_FOUND)));
-            CardMember member = CardMember.builder()
-                    .user(user)
-                    .role(role)
-                    .card(createdCard)
-                    .build();
-            cardMemberRepository.save(member);
 
             log.info("[Card][create] Success");
             return CardCreateResponse.builder()
@@ -134,6 +122,19 @@ public class CardServiceImpl implements ICardCommandService, ICardQueryService {
     }
 
     @Override
+    public void delete(String id) {
+        try {
+            log.info("[Card][delete] Start: req=[{}]", id);
+            cardRepository.deleteById(UUID.fromString(id));
+            log.info("[Card][delete] Success");
+        } catch (Exception e) {
+            log.error("[Card][delete] Error", e);
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    @Override
     public CardResponse findById(String id) {
         try {
             log.info("[Card][findById] Start");
@@ -179,4 +180,6 @@ public class CardServiceImpl implements ICardCommandService, ICardQueryService {
                         .build()
         )).toList();
     }
+
+
 }

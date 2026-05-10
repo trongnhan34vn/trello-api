@@ -15,4 +15,7 @@ import java.util.UUID;
 public interface IBoardRepository extends JpaRepository<Board, UUID> {
     @Query(value = BoardSql.FIND_BY_BOARD_ID, nativeQuery = true)
     List<BoardRecord> searchById(@Param("id") UUID id);
+
+    @Query(value = BoardSql.FIND_BOARDS_BY_COGNITO_ID, nativeQuery = true)
+    List<BoardRecord> searchByCognitoId(@Param("cognitoId") String cognitoId, @Param("search") String search);
 }

@@ -18,7 +18,7 @@ public interface IWorkspaceRepository extends JpaRepository<Workspace, UUID> {
             value = WorkspaceSql.FIND_BY_COGNITO_ID,
             nativeQuery = true
     )
-    List<WorkspaceRecord> searchByUserId(@Param("cognitoId") String cognitoId, @Param("search") String search);
+    List<WorkspaceRecord> searchByUserId(@Param("cognitoId") String cognitoId);
 
     @Query(
             value = WorkspaceSql.FIND_BY_WORKSPACE_ID_FULL,

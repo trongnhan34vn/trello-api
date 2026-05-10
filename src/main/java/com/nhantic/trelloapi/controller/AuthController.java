@@ -204,6 +204,28 @@ public class AuthController {
 
     }
 
+    @Operation(
+            summary = "Resend confirmation code",
+            description = "Resend the sign-up confirmation code to user's email",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Resend code payload",
+                    required = true,
+                    content = @Content(
+                            schema = @Schema(implementation = ResendCodeRequest.class)
+                    )
+            ),
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Code resent successfully",
+                            content = @Content(schema = @Schema(implementation = Response.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Invalid request or user not found"
+                    )
+            }
+    )
     @PostMapping("/resend-code")
     public ResponseEntity<?> resendCode(@Valid @RequestBody ResendCodeRequest resendCodeRequest) {
         authService.resendCode(resendCodeRequest);

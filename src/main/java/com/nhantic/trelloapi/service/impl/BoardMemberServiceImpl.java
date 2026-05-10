@@ -63,6 +63,7 @@ public class BoardMemberServiceImpl implements IBoardMemberQueryService, IBoardM
     public List<BoardMemberCreateResponse> create(BoardMemberCreateRequest request) {
         try {
             log.info("[BoardMember][create] Start: {}", request);
+            String createdBy = request.getCreatedBy();
             List<User> users = userRepository.findUsersByIdIn(request.getUserIds().stream().map(UUID::fromString).toList());
             Board board = boardRepository.findById(UUID.fromString(request.getBoardId())).orElseThrow(() -> new NotFoundException(ErrorMessageCode.BOARD_NOT_FOUND, mr.resolve(ErrorMessageCode.BOARD_NOT_FOUND)));
             Role role = roleRepository.findById(request.getRoleId()).orElseThrow(() -> new NotFoundException(ErrorMessageCode.ROLE_NOT_FOUND, mr.resolve(ErrorMessageCode.ROLE_NOT_FOUND)));
@@ -72,6 +73,7 @@ public class BoardMemberServiceImpl implements IBoardMemberQueryService, IBoardM
                         .user(user)
                         .board(board)
                         .role(role)
+                        .createdBy(UUID.fromString(createdBy))
                         .build();
                 preCreateBoardMembers.add(preCreateBoardMember);
             }

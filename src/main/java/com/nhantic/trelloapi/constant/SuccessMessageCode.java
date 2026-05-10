@@ -26,11 +26,16 @@ public class SuccessMessageCode {
     public static final String LIST_CREATED_SUCCESS = "MSG_INF_400";
     public static final String LIST_UPDATED_SUCCESS = "MSG_INF_401";
     public static final String LIST_FOUND = "MSG_INF_402";
+    public static final String LIST_DELETE_SUCCESS = "MSG_INF_403";
 
     public static final String CARD_CREATED_SUCCESS = "MSG_INF_501";
     public static final String CARD_UPDATED_SUCCESS = "MSG_INF_502";
     public static final String CARD_DELETED_SUCCESS = "MSG_INF_503";
     public static final String CARD_FOUND = "MSG_INF_504";
+
+    public static final String CARD_MEMBER_CREATED_SUCCESS = "MSG_INF_550";
+    public static final String CARD_MEMBER_FOUND = "MSG_INF_551";
+    public static final String CARD_MEMBER_DELETED_SUCCESS = "MSG_INF_552";
 
     public static final String CHECKLIST_FOUND = "MSG_INF_600";
     public static final String CHECKLIST_CREATED_SUCCESS = "MSG_INF_601";

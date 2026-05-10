@@ -36,4 +36,7 @@ public class BoardMember {
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "created_by", nullable = false)
+    private UUID createdBy;
 }

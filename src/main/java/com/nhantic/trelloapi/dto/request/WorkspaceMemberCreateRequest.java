@@ -18,4 +18,5 @@ public class WorkspaceMemberCreateRequest {
     private List<String> userIds;
     @Builder.Default
     private int roleId = 2;
+    private String createdBy;
 }

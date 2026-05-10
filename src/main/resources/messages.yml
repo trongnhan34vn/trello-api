@@ -23,11 +23,16 @@ MSG_INF_304: "Invite new members successfully"
 MSG_INF_400: "List created successfully"
 MSG_INF_401: "List updated successfully"
 MSG_INF_402: "List found"
+MSG_INF_403: "List deleted"
 
 MSG_INF_501: "Card created successfully"
 MSG_INF_502: "Card updated successfully"
 MSG_INF_503: "Card deleted successfully"
 MSG_INF_504: "Card found"
+
+MSG_INF_550: "Card Member created successfully"
+MSG_INF_551: "Card Member found"
+MSG_INF_552: "Card Member deleted successfully"
 
 MSG_INF_600: "Checklist found"
 MSG_INF_601: "Checklist created successfully"
