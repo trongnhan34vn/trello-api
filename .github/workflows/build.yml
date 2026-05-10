@@ -38,15 +38,18 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            mkdir -p /home/ubuntu/app
-            
             cat > /home/ubuntu/app/.env << 'EOF'
             ${{ secrets.ENV_FILE }}
             EOF
-            
-            export $(grep -v '^#' /home/ubuntu/app/.env | xargs)
-            
+
+            JAR_FILE=$(ls /home/ubuntu/app/target/*.jar | grep -v 'original' | head -1)
+
             pkill -f 'java -jar' || true
-            
-            nohup java -jar /home/ubuntu/app/target/*.jar \
+            sleep 2
+
+            nohup env $(grep -v '^#' /home/ubuntu/app/.env | xargs) \
+              java -jar "$JAR_FILE" \
               > /home/ubuntu/app/app.log 2>&1 &
+            disown $!
+
+            echo "Deployed PID: $!"
