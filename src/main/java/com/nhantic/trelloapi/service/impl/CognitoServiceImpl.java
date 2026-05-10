@@ -10,6 +10,7 @@ import com.nhantic.trelloapi.exception.InternalServerErrorException;
 import com.nhantic.trelloapi.exception.UnauthorizedException;
 import com.nhantic.trelloapi.helper.MessageResolver;
 import com.nhantic.trelloapi.service.ICognitoService;
+import com.nhantic.trelloapi.util.CognitoSecretHash;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,9 +28,9 @@ import java.util.Map;
 public class CognitoServiceImpl implements ICognitoService {
     @Value("${COGNITO_CLIENT_ID}")
     private String CLIENT_ID;
-    private static final int COOLDOWN_SECONDS = 60;
-    private static final int MAX_RESEND = 5;
-    private static final Duration WINDOW = Duration.ofHours(1);
+
+    @Value("${COGNITO_CLIENT_SECRET}")
+    private String CLIENT_SECRET;
 
     private final CognitoIdentityProviderClient cognitoClient;
     private final MessageResolver mr;
@@ -38,9 +39,17 @@ public class CognitoServiceImpl implements ICognitoService {
     public AuthenticationResultType signIn(CognitoSignInRequest dto) {
         try {
             log.info("[Cognito][signIn]: {}", dto.getUsername());
+            String secretHash =
+                    CognitoSecretHash.generateSecretHash(
+                            dto.getUsername(),
+                            CLIENT_ID,
+                            CLIENT_SECRET
+                    );
+
             Map<String, String> params = new HashMap<>();
             params.put("USERNAME", dto.getUsername());
             params.put("PASSWORD", dto.getPassword());
+            params.put("SECRET_HASH", secretHash);
 
             InitiateAuthRequest req = InitiateAuthRequest.builder()
                     .clientId(CLIENT_ID)
@@ -72,6 +81,12 @@ public class CognitoServiceImpl implements ICognitoService {
     public void signUp(CognitoSignUpRequest dto) {
         try {
             log.info("[Cognito][signUp]: {}", dto.getUsername());
+            String secretHash =  CognitoSecretHash.generateSecretHash(
+                    dto.getUsername(),
+                    CLIENT_ID,
+                    CLIENT_SECRET
+            );
+
             SignUpRequest req = SignUpRequest.builder()
                     .clientId(CLIENT_ID)
                     .username(dto.getUsername())
@@ -79,6 +94,7 @@ public class CognitoServiceImpl implements ICognitoService {
                     .userAttributes(
                             AttributeType.builder().name("custom:fullName").value(dto.getFullName()).build()
                     )
+                    .secretHash(secretHash)
                     .build();
             cognitoClient.signUp(req);
         } catch (UsernameExistsException e) {
@@ -93,10 +109,16 @@ public class CognitoServiceImpl implements ICognitoService {
     public void confirmSignUp(CognitoConfirmSignUpRequest dto) {
         try {
             log.info("[Cognito][confirmSignUp]: {}", dto.getUsername());
+            String secretHash =  CognitoSecretHash.generateSecretHash(
+                    dto.getUsername(),
+                    CLIENT_ID,
+                    CLIENT_SECRET
+            );
             ConfirmSignUpRequest req = ConfirmSignUpRequest.builder()
                     .clientId(CLIENT_ID)
                     .username(dto.getUsername())
                     .confirmationCode(dto.getConfirmationCode())
+                    .secretHash(secretHash)
                     .build();
             cognitoClient.confirmSignUp(req);
         } catch (CodeMismatchException e) {
@@ -133,9 +155,15 @@ public class CognitoServiceImpl implements ICognitoService {
     public void resendEmail(String username) {
         try {
             log.info("[Cognito][resendEmail]: Start {}", username);
+            String secretHash =  CognitoSecretHash.generateSecretHash(
+                    username,
+                    CLIENT_ID,
+                    CLIENT_SECRET
+            );
             ResendConfirmationCodeRequest request = ResendConfirmationCodeRequest.builder()
                     .clientId(CLIENT_ID)
                     .username(username)
+                    .secretHash(secretHash)
                     .build();
             ResendConfirmationCodeResponse response = cognitoClient.resendConfirmationCode(request);
             log.info("[Cognito][resendEmail]: Success {}", response);
