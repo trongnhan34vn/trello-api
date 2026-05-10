@@ -64,7 +64,6 @@ public class AuthController {
                 .httpOnly(true)
                 .secure(false)
                 .maxAge(token.getExpiresIn())
-                .sameSite("Lax") // hoặc None nếu cross-site
                 .path(COOKIE_ROOT_PATH)
                 .build();
 
@@ -72,7 +71,6 @@ public class AuthController {
                 .httpOnly(true)
                 .secure(false)
                 .maxAge(token.getRefreshExpiresIn())
-                .sameSite("Lax")// hoặc None nếu cross-site
                 .path(COOKIE_ROOT_PATH)
                 .build();
 
@@ -178,7 +176,6 @@ public class AuthController {
                 .secure(false)
                 .maxAge(token.getExpiresIn())
                 .path(COOKIE_ROOT_PATH)
-                .sameSite("Lax") // hoặc None nếu cross-site
                 .build();
 
         ResponseCookie refreshTokenCookie = ResponseCookie.from(REFRESH_TOKEN_FIELD_NAME, token.getRefreshToken())
@@ -186,7 +183,6 @@ public class AuthController {
                 .secure(false)
                 .maxAge(token.getRefreshExpiresIn())
                 .path(COOKIE_ROOT_PATH)
-                .sameSite("Lax") // hoặc None nếu cross-site
                 .build();
 
         Response res = Response.builder()
