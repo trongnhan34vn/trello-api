@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,8 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Tag(name = "Authentication", description = "Endpoints for user authentication")
 public class AuthController {
+    @Value("${NELLO_APP_DOMAIN}")
+    String APP_DOMAIN;
     private final IAuthService authService;
     private final MessageResolver mr;
 
@@ -63,13 +66,16 @@ public class AuthController {
         ResponseCookie accessTokenCookie = ResponseCookie.from(ACCESS_TOKEN_FIELD_NAME, token.getAccessToken())
                 .httpOnly(true)
                 .secure(false)
+                .domain(APP_DOMAIN)
+                .sameSite("None")
                 .maxAge(token.getExpiresIn())
                 .path(COOKIE_ROOT_PATH)
                 .build();
-
         ResponseCookie refreshTokenCookie = ResponseCookie.from(REFRESH_TOKEN_FIELD_NAME, token.getRefreshToken())
                 .httpOnly(true)
                 .secure(false)
+                .domain(APP_DOMAIN)
+                .sameSite("None")
                 .maxAge(token.getRefreshExpiresIn())
                 .path(COOKIE_ROOT_PATH)
                 .build();
@@ -174,6 +180,8 @@ public class AuthController {
         ResponseCookie accessTokenCookie = ResponseCookie.from(ACCESS_TOKEN_FIELD_NAME, token.getAccessToken())
                 .httpOnly(true)
                 .secure(false)
+                .domain(APP_DOMAIN)
+                .sameSite("None")
                 .maxAge(token.getExpiresIn())
                 .path(COOKIE_ROOT_PATH)
                 .build();
@@ -181,6 +189,8 @@ public class AuthController {
         ResponseCookie refreshTokenCookie = ResponseCookie.from(REFRESH_TOKEN_FIELD_NAME, token.getRefreshToken())
                 .httpOnly(true)
                 .secure(false)
+                .domain(APP_DOMAIN)
+                .sameSite("None")
                 .maxAge(token.getRefreshExpiresIn())
                 .path(COOKIE_ROOT_PATH)
                 .build();
