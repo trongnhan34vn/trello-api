@@ -1,10 +1,7 @@
 package com.nhantic.trelloapi.controller;
 
 import com.nhantic.trelloapi.constant.SuccessMessageCode;
-import com.nhantic.trelloapi.dto.request.ConfirmSignUpRequest;
-import com.nhantic.trelloapi.dto.request.ResendCodeRequest;
-import com.nhantic.trelloapi.dto.request.SignInRequest;
-import com.nhantic.trelloapi.dto.request.SignUpRequest;
+import com.nhantic.trelloapi.dto.request.*;
 import com.nhantic.trelloapi.dto.response.Response;
 import com.nhantic.trelloapi.dto.response.TokenResponse;
 import com.nhantic.trelloapi.helper.MessageResolver;
@@ -16,10 +13,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,8 +25,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Tag(name = "Authentication", description = "Endpoints for user authentication")
 public class AuthController {
-    @Value("${NELLO_APP_DOMAIN}")
-    String APP_DOMAIN;
     private final IAuthService authService;
     private final MessageResolver mr;
 
@@ -66,7 +62,6 @@ public class AuthController {
         ResponseCookie accessTokenCookie = ResponseCookie.from(ACCESS_TOKEN_FIELD_NAME, token.getAccessToken())
                 .httpOnly(true)
                 .secure(false)
-                .domain(".compute.amazonaws.com")
                 .sameSite("Lax")
                 .maxAge(token.getExpiresIn())
                 .path(COOKIE_ROOT_PATH)
@@ -74,7 +69,6 @@ public class AuthController {
         ResponseCookie refreshTokenCookie = ResponseCookie.from(REFRESH_TOKEN_FIELD_NAME, token.getRefreshToken())
                 .httpOnly(true)
                 .secure(false)
-                .domain(".compute.amazonaws.com")
                 .sameSite("Lax")
                 .maxAge(token.getRefreshExpiresIn())
                 .path(COOKIE_ROOT_PATH)
@@ -239,6 +233,19 @@ public class AuthController {
                 .code(SuccessMessageCode.RESEND_CODE_SUCCESS)
                 .message(mr.resolve(SuccessMessageCode.RESEND_CODE_SUCCESS))
                 .data(resendCodeRequest.getUsername())
+                .success(true)
+                .build();
+        return ResponseEntity.ok(res);
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordRequestDto req, @AuthenticationPrincipal Jwt jwt) {
+        req.setAccessToken(jwt.getTokenValue());
+        authService.changePassword(req);
+        Response res = Response.builder()
+                .code(SuccessMessageCode.CHANGE_PASSWORD_SUCCESS)
+                .message(mr.resolve(SuccessMessageCode.CHANGE_PASSWORD_SUCCESS))
+                .data(null)
                 .success(true)
                 .build();
         return ResponseEntity.ok(res);

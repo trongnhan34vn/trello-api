@@ -4,6 +4,7 @@ MSG_INF_002: "Sign up successfully"
 MSG_INF_003: "Refresh token successfully"
 MSG_INF_004: "Confirm sign up successfully"
 MSG_INF_005: "Confirmation code resent successfully"
+MSG_INF_006: "Change password successfully"
 
 MSG_INF_101: "User created successfully"
 MSG_INF_102: "User updated successfully"

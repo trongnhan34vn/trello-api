@@ -1,6 +1,7 @@
 package com.nhantic.trelloapi.service.impl;
 
 import com.nhantic.trelloapi.constant.ErrorMessageCode;
+import com.nhantic.trelloapi.dto.request.ChangePasswordRequestDto;
 import com.nhantic.trelloapi.dto.request.CognitoConfirmSignUpRequest;
 import com.nhantic.trelloapi.dto.request.CognitoSignInRequest;
 import com.nhantic.trelloapi.dto.request.CognitoSignUpRequest;
@@ -18,7 +19,6 @@ import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.*;
 
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -167,6 +167,21 @@ public class CognitoServiceImpl implements ICognitoService {
                     .build();
             ResendConfirmationCodeResponse response = cognitoClient.resendConfirmationCode(request);
             log.info("[Cognito][resendEmail]: Success {}", response);
+        } catch (Exception e) {
+            throw new InternalServerErrorException(ErrorMessageCode.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    @Override
+    public void modifyPassword(ChangePasswordRequestDto request) {
+        try {
+            ChangePasswordRequest req = ChangePasswordRequest.builder()
+                    .accessToken(request.getAccessToken())
+                    .previousPassword(request.getOldPassword())
+                    .proposedPassword(request.getNewPassword())
+                    .build();
+            ChangePasswordResponse res = cognitoClient.changePassword(req);
+            log.info("[Cognito][modifyPassword]: Success {}", res);
         } catch (Exception e) {
             throw new InternalServerErrorException(ErrorMessageCode.INTERNAL_SERVER_ERROR, e.getMessage());
         }
