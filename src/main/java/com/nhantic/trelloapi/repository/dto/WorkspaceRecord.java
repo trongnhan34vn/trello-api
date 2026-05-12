@@ -2,6 +2,8 @@ package com.nhantic.trelloapi.repository.dto;
 
 import lombok.*;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Builder
@@ -30,4 +32,5 @@ public class WorkspaceRecord {
     private String memberEmail;
     private String memberAvatar;
     private Integer memberRoleId;
+    private Timestamp createdAt;
 }
