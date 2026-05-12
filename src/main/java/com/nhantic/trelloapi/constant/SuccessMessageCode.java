@@ -7,6 +7,7 @@ public class SuccessMessageCode {
     public static final String REFRESH_TOKEN_SUCCESS = "MSG_INF_003";
     public static final String CONFIRM_SIGN_UP_SUCCESS = "MSG_INF_004";
     public static final String RESEND_CODE_SUCCESS = "MSG_INF_005";
+    public static final String CHANGE_PASSWORD_SUCCESS = "MSG_INF_006";
 
     public static final String USER_CREATED_SUCCESS = "MSG_INF_101";
     public static final String USER_UPDATED_SUCCESS = "MSG_INF_102";

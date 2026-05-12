@@ -159,5 +159,18 @@ public class AuthServiceImpl implements IAuthService {
         }
     }
 
+    @Override
+    public void changePassword(ChangePasswordRequestDto request) {
+        try {
+            log.info("[Auth][changePassword]: Start");
+            cognitoService.modifyPassword(request);
+            log.info("[Auth][changePassword]: Success");
+        } catch (Exception e) {
+            log.error("[Auth][changePassword]: Error {}", e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
 
 }
