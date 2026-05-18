@@ -5,4 +5,5 @@ import com.nhantic.trelloapi.dto.response.UserCreateResponse;
 
 public interface IUserCommandService {
     UserCreateResponse create(UserCreateRequest dto);
+    com.nhantic.trelloapi.dto.response.UserResponse updateProfile(com.nhantic.trelloapi.dto.request.UpdateProfileRequest request);
 }

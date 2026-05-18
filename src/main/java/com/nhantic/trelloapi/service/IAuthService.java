@@ -9,5 +9,5 @@ public interface IAuthService {
      void confirmSignUp(ConfirmSignUpRequest confirmSignUpRequest);
      TokenResponse refreshToken(String token);
      void resendCode(ResendCodeRequest resendCodeRequest);
-     void changePassword(ChangePasswordRequestDto request);
+     void changePassword(ChangePasswordRequest request);
 }

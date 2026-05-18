@@ -1,7 +1,7 @@
 package com.nhantic.trelloapi.service.impl;
 
 import com.nhantic.trelloapi.constant.ErrorMessageCode;
-import com.nhantic.trelloapi.dto.request.ChangePasswordRequestDto;
+import com.nhantic.trelloapi.dto.request.ChangePasswordRequest;
 import com.nhantic.trelloapi.dto.request.CognitoConfirmSignUpRequest;
 import com.nhantic.trelloapi.dto.request.CognitoSignInRequest;
 import com.nhantic.trelloapi.dto.request.CognitoSignUpRequest;
@@ -173,16 +173,29 @@ public class CognitoServiceImpl implements ICognitoService {
     }
 
     @Override
-    public void modifyPassword(ChangePasswordRequestDto request) {
+    public void modifyPassword(ChangePasswordRequest request) {
         try {
-            ChangePasswordRequest req = ChangePasswordRequest.builder()
+            software.amazon.awssdk.services.cognitoidentityprovider.model.ChangePasswordRequest req = software.amazon.awssdk.services.cognitoidentityprovider.model.ChangePasswordRequest.builder()
                     .accessToken(request.getAccessToken())
-                    .previousPassword(request.getOldPassword())
+                    .previousPassword(request.getCurrentPassword())
                     .proposedPassword(request.getNewPassword())
                     .build();
             ChangePasswordResponse res = cognitoClient.changePassword(req);
             log.info("[Cognito][modifyPassword]: Success {}", res);
         } catch (Exception e) {
+            if (e instanceof NotAuthorizedException) {
+                throw new UnauthorizedException(
+                        ErrorMessageCode.INVALID_CREDENTIALS,
+                        mr.resolve(ErrorMessageCode.INVALID_CREDENTIALS)
+                );
+            }
+            if (e instanceof InvalidPasswordException) {
+                throw new BadRequestException(
+                        ErrorMessageCode.BAD_REQUEST,
+                        e.getMessage(),
+                        e
+                );
+            }
             throw new InternalServerErrorException(ErrorMessageCode.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }

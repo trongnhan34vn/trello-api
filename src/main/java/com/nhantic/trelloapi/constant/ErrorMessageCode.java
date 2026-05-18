@@ -6,6 +6,7 @@ public class ErrorMessageCode {
     public static final String USER_NOT_CONFIRMED = "MSG_ERR_003";
     public static final String USER_EXISTS = "MSG_ERR_004";
     public static final String INVALID_VERIFICATION_CODE = "MSG_ERR_005";
+    public static final String FORBIDDEN = "MSG_ERR_006";
 
     public static final String USER_NOT_FOUND = "MSG_ERR_101";
     public static final String USER_ALREADY_EXISTS = "MSG_ERR_102";

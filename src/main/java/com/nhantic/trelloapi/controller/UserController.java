@@ -15,10 +15,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import com.nhantic.trelloapi.dto.request.UpdateProfileRequest;
+import com.nhantic.trelloapi.service.IUserCommandService;
 
 import java.util.List;
 
@@ -29,6 +28,7 @@ import java.util.List;
 public class UserController {
     private final MessageResolver mr;
     private final IUserQueryService userQueryService;
+    private final IUserCommandService userCommandService;
 
     @Operation(
             summary = "Get current user",
@@ -92,6 +92,38 @@ public class UserController {
                 .message(mr.resolve(SuccessMessageCode.USER_FOUND))
                 .success(true)
                 .data(userResponses)
+                .build();
+        return ResponseEntity.ok(res);
+    }
+
+    @Operation(
+            summary = "Update user profile",
+            description = "Update the profile information of a user",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "User updated successfully",
+                            content = @Content(schema = @Schema(implementation = Response.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Unauthorized"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "User not found"
+                    )
+            }
+    )
+    @PutMapping("")
+    public ResponseEntity<?> updateProfile(@RequestBody UpdateProfileRequest request, @AuthenticationPrincipal Jwt jwt) {
+        request.setCognitoId(jwt.getSubject());
+        UserResponse userResponse = userCommandService.updateProfile(request);
+        Response res = Response.builder()
+                .code(SuccessMessageCode.USER_UPDATED_SUCCESS)
+                .message(mr.resolve(SuccessMessageCode.USER_UPDATED_SUCCESS))
+                .success(true)
+                .data(userResponse)
                 .build();
         return ResponseEntity.ok(res);
     }

@@ -15,6 +15,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import com.nhantic.trelloapi.dto.request.UpdateProfileRequest;
+import com.nhantic.trelloapi.exception.ForbiddenException;
+import java.util.UUID;
 
 import java.util.List;
 
@@ -89,6 +93,9 @@ public class UserServiceImpl implements IUserCommandService, IUserQueryService {
                     .fullName(user.getFullName())
                     .email(user.getEmail())
                     .avatarUrl(user.getAvatarUrl())
+                    .bio(user.getBio())
+                    .phone(user.getPhone())
+                    .address(user.getAddress())
                     .id(user.getId().toString())
                     .createdAt(user.getCreatedAt().toString())
                     .updatedAt(user.getUpdatedAt().toString())
@@ -113,9 +120,51 @@ public class UserServiceImpl implements IUserCommandService, IUserQueryService {
                     .email(u.getEmail())
                     .fullName(u.getFullName())
                     .avatarUrl(u.getAvatarUrl())
+                    .bio(u.getBio())
+                    .phone(u.getPhone())
+                    .address(u.getAddress())
                     .build())).toList();
         } catch (Exception e) {
             log.info("[User][findAll]: Error {}", e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    @Override
+    @Transactional
+    public UserResponse updateProfile(UpdateProfileRequest request) {
+        try {
+            log.info("[User][updateProfile] Start");
+            String cognitoId = request.getCognitoId();
+            User user = userRepository.findByCognitoId(cognitoId).orElseThrow(
+                    () -> new NotFoundException(ErrorMessageCode.USER_NOT_FOUND, mr.resolve(ErrorMessageCode.USER_NOT_FOUND))
+            );
+            if (request.getFullName() != null) {
+                user.setFullName(request.getFullName());
+            }
+            if (request.getAvatarUrl() != null) {
+                user.setAvatarUrl(request.getAvatarUrl());
+            }
+            user.setBio(request.getBio());
+            user.setPhone(request.getPhone());
+            user.setAddress(request.getAddress());
+            
+            User savedUser = userRepository.save(user);
+            log.info("[User][updateProfile] Success");
+            return UserResponse.builder()
+                    .fullName(savedUser.getFullName())
+                    .email(savedUser.getEmail())
+                    .avatarUrl(savedUser.getAvatarUrl())
+                    .bio(savedUser.getBio())
+                    .phone(savedUser.getPhone())
+                    .address(savedUser.getAddress())
+                    .id(savedUser.getId().toString())
+                    .createdAt(savedUser.getCreatedAt().toString())
+                    .updatedAt(savedUser.getUpdatedAt().toString())
+                    .build();
+        } catch (Exception e) {
+            log.error("[User][updateProfile] Error {}", e.getMessage());
             e.printStackTrace();
             throw e;
         }
