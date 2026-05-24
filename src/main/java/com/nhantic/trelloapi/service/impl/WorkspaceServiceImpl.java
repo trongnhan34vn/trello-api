@@ -52,7 +52,7 @@ public class WorkspaceServiceImpl implements IWorkspaceQueryService, IWorkspaceC
     }
 
     private static List<WorkspaceResponse> mapWorkspaceResponses(List<WorkspaceRecord> workspaceRecordWithBoards) {
-        Map<UUID, WorkspaceResponse> workspaceResponseMap = new HashMap<>();
+        Map<UUID, WorkspaceResponse> workspaceResponseMap = new LinkedHashMap<>();
         for (WorkspaceRecord item : workspaceRecordWithBoards) {
             WorkspaceResponse workspace = workspaceResponseMap.computeIfAbsent(item.getWorkspaceId(), id ->
                     WorkspaceResponse.builder()

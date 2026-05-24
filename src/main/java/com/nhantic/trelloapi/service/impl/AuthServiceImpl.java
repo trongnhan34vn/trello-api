@@ -19,8 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AuthenticationResultType;
 
-import java.time.Duration;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -160,7 +158,7 @@ public class AuthServiceImpl implements IAuthService {
     }
 
     @Override
-    public void changePassword(ChangePasswordRequestDto request) {
+    public void changePassword(ChangePasswordRequest request) {
         try {
             log.info("[Auth][changePassword]: Start");
             cognitoService.modifyPassword(request);

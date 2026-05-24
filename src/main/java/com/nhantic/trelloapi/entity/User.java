@@ -33,6 +33,13 @@ public class User {
     @Column(name = "avatar_url")
     private String avatarUrl;
 
+    @Column(columnDefinition = "TEXT")
+    private String bio;
+
+    private String phone;
+
+    private String address;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

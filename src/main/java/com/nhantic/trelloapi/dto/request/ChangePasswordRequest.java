@@ -1,5 +1,6 @@
 package com.nhantic.trelloapi.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Builder
@@ -7,8 +8,10 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChangePasswordRequestDto {
+public class ChangePasswordRequest {
+    @NotBlank
     private String newPassword;
-    private String oldPassword;
+    @NotBlank
+    private String currentPassword;
     private String accessToken;
 }

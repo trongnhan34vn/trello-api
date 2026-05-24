@@ -1,4 +1,4 @@
-package com.nhantic.trelloapi.dto.response;
+package com.nhantic.trelloapi.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,14 +9,11 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserResponse {
-    private String id;
-    private String email;
+public class UpdateProfileRequest {
     private String fullName;
     private String avatarUrl;
     private String bio;
     private String phone;
     private String address;
-    private String createdAt;
-    private String updatedAt;
+    private String cognitoId;
 }

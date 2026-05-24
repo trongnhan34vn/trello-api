@@ -54,6 +54,7 @@ MSG_ERR_002: "Unauthorized"
 MSG_ERR_003: "User is not confirmed"
 MSG_ERR_004: "User already exists"
 MSG_ERR_005: "Invalid verification code"
+MSG_ERR_006: "Forbidden"
 
 MSG_ERR_101: "User not found"
 MSG_ERR_102: "User already exists"

@@ -239,7 +239,7 @@ public class AuthController {
     }
 
     @PostMapping("/change-password")
-    public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordRequestDto req, @AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordRequest req, @AuthenticationPrincipal Jwt jwt) {
         req.setAccessToken(jwt.getTokenValue());
         authService.changePassword(req);
         Response res = Response.builder()

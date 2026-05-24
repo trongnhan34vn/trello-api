@@ -1,6 +1,6 @@
 package com.nhantic.trelloapi.service;
 
-import com.nhantic.trelloapi.dto.request.ChangePasswordRequestDto;
+import com.nhantic.trelloapi.dto.request.ChangePasswordRequest;
 import com.nhantic.trelloapi.dto.request.CognitoConfirmSignUpRequest;
 import com.nhantic.trelloapi.dto.request.CognitoSignInRequest;
 import com.nhantic.trelloapi.dto.request.CognitoSignUpRequest;
@@ -12,5 +12,5 @@ public interface ICognitoService {
     void confirmSignUp(CognitoConfirmSignUpRequest dto);
     AuthenticationResultType refreshToken(String token);
     void resendEmail(String username);
-    void modifyPassword(ChangePasswordRequestDto request);
+    void modifyPassword(ChangePasswordRequest request);
 }
