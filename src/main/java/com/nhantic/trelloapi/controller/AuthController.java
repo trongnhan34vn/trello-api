@@ -174,8 +174,7 @@ public class AuthController {
         ResponseCookie accessTokenCookie = ResponseCookie.from(ACCESS_TOKEN_FIELD_NAME, token.getAccessToken())
                 .httpOnly(true)
                 .secure(false)
-                .domain(".compute.amazonaws.com")
-                .sameSite("None")
+                .sameSite("Lax")
                 .maxAge(token.getExpiresIn())
                 .path(COOKIE_ROOT_PATH)
                 .build();
@@ -183,8 +182,7 @@ public class AuthController {
         ResponseCookie refreshTokenCookie = ResponseCookie.from(REFRESH_TOKEN_FIELD_NAME, token.getRefreshToken())
                 .httpOnly(true)
                 .secure(false)
-                .domain(".compute.amazonaws.com")
-                .sameSite("None")
+                .sameSite("Lax")
                 .maxAge(token.getRefreshExpiresIn())
                 .path(COOKIE_ROOT_PATH)
                 .build();
@@ -249,5 +247,29 @@ public class AuthController {
                 .success(true)
                 .build();
         return ResponseEntity.ok(res);
+    }
+
+    @PostMapping("/sign-out")
+    public ResponseEntity<?> signOut() {
+        ResponseCookie deleteAccessToken = ResponseCookie.from(ACCESS_TOKEN_FIELD_NAME, "")
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("Lax")
+                .path("/")
+                .maxAge(0)
+                .build();
+
+        ResponseCookie deleteRefreshToken = ResponseCookie.from(REFRESH_TOKEN_FIELD_NAME, "")
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("Lax")
+                .path("/")
+                .maxAge(0)
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, deleteAccessToken.toString())
+                .header(HttpHeaders.SET_COOKIE, deleteRefreshToken.toString())
+                .build();
     }
 }
