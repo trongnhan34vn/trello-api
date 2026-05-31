@@ -161,29 +161,23 @@ public class AuthController {
                     @ApiResponse(
                             responseCode = "401",
                             description = "Unauthorized - missing or invalid refresh token"
-                    ),
-                    @ApiResponse(
-                            responseCode = "500",
-                            description = "Internal server error"
                     )
             }
     )
     @PostMapping("/refresh-token")
-    public ResponseEntity<?> refreshToken(@CookieValue(value = REFRESH_TOKEN_FIELD_NAME, required = false) String refreshToken) {
-        TokenResponse token = authService.refreshToken(refreshToken);
+    public ResponseEntity<?> refreshToken(
+            @CookieValue(value = REFRESH_TOKEN_FIELD_NAME, required = false) String refreshToken) {
+
+        RefreshTokenRequest req = RefreshTokenRequest.builder()
+                .token(refreshToken)
+                .build();
+        TokenResponse token = authService.refreshToken(req);
+
         ResponseCookie accessTokenCookie = ResponseCookie.from(ACCESS_TOKEN_FIELD_NAME, token.getAccessToken())
                 .httpOnly(true)
                 .secure(false)
                 .sameSite("Lax")
                 .maxAge(token.getExpiresIn())
-                .path(COOKIE_ROOT_PATH)
-                .build();
-
-        ResponseCookie refreshTokenCookie = ResponseCookie.from(REFRESH_TOKEN_FIELD_NAME, token.getRefreshToken())
-                .httpOnly(true)
-                .secure(false)
-                .sameSite("Lax")
-                .maxAge(token.getRefreshExpiresIn())
                 .path(COOKIE_ROOT_PATH)
                 .build();
 
@@ -194,12 +188,8 @@ public class AuthController {
                 .build();
 
         return ResponseEntity.ok()
-                .headers(headers -> {
-                    headers.add(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
-                    headers.add(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
-                })
+                .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
                 .body(res);
-
     }
 
     @Operation(
@@ -236,6 +226,26 @@ public class AuthController {
         return ResponseEntity.ok(res);
     }
 
+    @Operation(
+            summary = "Change password",
+            description = "Change the current user's password. Requires a valid access token.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Change password payload",
+                    required = true,
+                    content = @Content(schema = @Schema(implementation = ChangePasswordRequest.class))
+            ),
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Password changed successfully",
+                            content = @Content(schema = @Schema(implementation = Response.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Unauthorized - invalid or missing access token"
+                    )
+            }
+    )
     @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordRequest req, @AuthenticationPrincipal Jwt jwt) {
         req.setAccessToken(jwt.getTokenValue());
@@ -249,21 +259,34 @@ public class AuthController {
         return ResponseEntity.ok(res);
     }
 
+    @Operation(
+            summary = "Sign out",
+            description = "Sign out the current user by clearing cookies and invalidating the session.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Signed out successfully"
+                    )
+            }
+    )
     @PostMapping("/sign-out")
     public ResponseEntity<?> signOut() {
+
+        authService.signOut();
+
         ResponseCookie deleteAccessToken = ResponseCookie.from(ACCESS_TOKEN_FIELD_NAME, "")
                 .httpOnly(true)
-                .secure(true)
+                .secure(false)
                 .sameSite("Lax")
-                .path("/")
+                .path(COOKIE_ROOT_PATH)
                 .maxAge(0)
                 .build();
 
         ResponseCookie deleteRefreshToken = ResponseCookie.from(REFRESH_TOKEN_FIELD_NAME, "")
                 .httpOnly(true)
-                .secure(true)
+                .secure(false)
                 .sameSite("Lax")
-                .path("/")
+                .path(COOKIE_ROOT_PATH)
                 .maxAge(0)
                 .build();
 

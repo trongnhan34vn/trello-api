@@ -8,7 +8,7 @@ import com.nhantic.trelloapi.dto.response.CardResponse;
 import com.nhantic.trelloapi.dto.response.CardUpdateResponse;
 import com.nhantic.trelloapi.dto.response.Response;
 import com.nhantic.trelloapi.event.CardCreateEvent;
-import com.nhantic.trelloapi.helper.BuildCreatedByFromJwt;
+import com.nhantic.trelloapi.helper.GetUserFromJwt;
 import com.nhantic.trelloapi.helper.MessageResolver;
 import com.nhantic.trelloapi.service.ICardCommandService;
 import com.nhantic.trelloapi.service.ICardQueryService;
@@ -72,7 +72,7 @@ public class CardController {
     )
     @PostMapping()
     public ResponseEntity<?> create(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody CardCreateRequest request) {
-        String createdBy = BuildCreatedByFromJwt.execute(userQueryService, mr, jwt);
+        String createdBy = GetUserFromJwt.execute(userQueryService, mr, jwt);
         request.setCreatedBy(createdBy);
         CardCreateResponse card = cardCommandService.create(request);
 
@@ -132,7 +132,7 @@ public class CardController {
     )
     @PatchMapping("/{id}")
     public ResponseEntity<?> update(@AuthenticationPrincipal Jwt jwt, @RequestBody CardUpdateRequest request, @PathVariable String id) {
-        String updatedBy = BuildCreatedByFromJwt.execute(userQueryService, mr, jwt);
+        String updatedBy = GetUserFromJwt.execute(userQueryService, mr, jwt);
         request.setUpdatedBy(updatedBy);
         request.setId(id);
         CardUpdateResponse card = cardCommandService.update(request);

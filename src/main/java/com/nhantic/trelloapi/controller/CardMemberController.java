@@ -5,7 +5,7 @@ import com.nhantic.trelloapi.dto.request.CardMemberCreateRequest;
 import com.nhantic.trelloapi.dto.response.CardMemberCreateResponse;
 import com.nhantic.trelloapi.dto.response.CardMemberResponse;
 import com.nhantic.trelloapi.dto.response.Response;
-import com.nhantic.trelloapi.helper.BuildCreatedByFromJwt;
+import com.nhantic.trelloapi.helper.GetUserFromJwt;
 import com.nhantic.trelloapi.helper.MessageResolver;
 import com.nhantic.trelloapi.service.ICardMemberCommandService;
 import com.nhantic.trelloapi.service.ICardMemberQueryService;
@@ -67,7 +67,7 @@ public class CardMemberController {
     )
     @PostMapping()
     public ResponseEntity<?> create(@RequestBody @Valid CardMemberCreateRequest request, @AuthenticationPrincipal Jwt jwt) {
-        String createdBy = BuildCreatedByFromJwt.execute(userQueryService, mr, jwt);
+        String createdBy = GetUserFromJwt.execute(userQueryService, mr, jwt);
         request.setCreatedBy(createdBy);
         CardMemberCreateResponse member = cardMemberCommandService.create(request);
         Response response = Response.builder()
@@ -116,6 +116,34 @@ public class CardMemberController {
         return ResponseEntity.ok(res);
     }
 
+    @Operation(
+            summary = "Remove member from card",
+            description = "Remove a member assignment from a specific card by card-member ID",
+            parameters = {
+                    @Parameter(
+                            name = "id",
+                            description = "Card member ID",
+                            required = true
+                    )
+            },
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Member removed successfully",
+                            content = @Content(schema = @Schema(implementation = Response.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Unauthorized",
+                            content = @Content(schema = @Schema())
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Card member not found",
+                            content = @Content(schema = @Schema())
+                    )
+            }
+    )
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable String id) {
         cardMemberCommandService.delete(id);

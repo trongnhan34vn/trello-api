@@ -4,6 +4,8 @@ import com.nhantic.trelloapi.constant.ErrorMessageCode;
 import com.nhantic.trelloapi.dto.request.*;
 import com.nhantic.trelloapi.dto.response.TokenResponse;
 import com.nhantic.trelloapi.dto.response.UserCreateResponse;
+import com.nhantic.trelloapi.dto.response.UserInternalResponse;
+import com.nhantic.trelloapi.entity.UserSession;
 import com.nhantic.trelloapi.exception.BadRequestException;
 import com.nhantic.trelloapi.exception.InternalServerErrorException;
 import com.nhantic.trelloapi.helper.MessageResolver;
@@ -11,6 +13,7 @@ import com.nhantic.trelloapi.service.IAuthService;
 import com.nhantic.trelloapi.service.ICognitoService;
 import com.nhantic.trelloapi.service.IUserCommandService;
 import com.nhantic.trelloapi.service.IUserQueryService;
+import com.nhantic.trelloapi.service.IUserSessionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -19,6 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AuthenticationResultType;
 
+import java.util.UUID;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -26,6 +31,7 @@ public class AuthServiceImpl implements IAuthService {
     private final ICognitoService cognitoService;
     private final IUserCommandService userCommandService;
     private final IUserQueryService userQueryService;
+    private final IUserSessionService userSessionService;
     private final JwtDecoder jwtDecoder;
     private final MessageResolver mr;
 
@@ -33,7 +39,6 @@ public class AuthServiceImpl implements IAuthService {
     @Transactional
     public TokenResponse signIn(SignInRequest signInRequest) {
         try {
-            // sign in
             log.info("[Auth][SignIn]: {}", signInRequest.getEmail());
 
             CognitoSignInRequest cognitoSignInRequest = CognitoSignInRequest.builder()
@@ -41,12 +46,13 @@ public class AuthServiceImpl implements IAuthService {
                     .password(signInRequest.getPassword())
                     .build();
             AuthenticationResultType authRes = cognitoService.signIn(cognitoSignInRequest);
-            // save user
+
             String idToken = authRes.idToken();
             Jwt jwt = jwtDecoder.decode(idToken);
-            provisionUserIfAbsent(jwt, UserCreateRequest.builder()
-                    .email(signInRequest.getEmail())
-                    .build());
+            String cognitoId = jwt.getSubject();
+            UUID userId = provisionUserIfAbsent(jwt, cognitoId, signInRequest.getEmail());
+
+            userSessionService.save(userId, cognitoId, authRes.refreshToken());
 
             log.info("[Auth][SignIn]: Success");
             return buildTokenResponse(authRes);
@@ -57,23 +63,27 @@ public class AuthServiceImpl implements IAuthService {
         }
     }
 
-    private void provisionUserIfAbsent(Jwt jwt, UserCreateRequest dto) {
+    private UUID provisionUserIfAbsent(Jwt jwt, String cognitoId, String email) {
         String FULL_NAME_COGNITO_FIELD = "custom:fullName";
-        boolean isExistedUser = userQueryService.existsByCognitoId(jwt.getSubject());
-        if (!isExistedUser) {
-            log.info("[Auth][SignIn]: Create user");
-            String fullName = jwt.getClaim(FULL_NAME_COGNITO_FIELD);
-            dto.setFullName(fullName);
-            dto.setCognitoId(jwt.getSubject());
-            UserCreateResponse createdUser = userCommandService.create(dto);
-
-            if (createdUser == null) {
-                throw new InternalServerErrorException(
-                        ErrorMessageCode.INTERNAL_SERVER_ERROR,
-                        mr.resolve(ErrorMessageCode.INTERNAL_SERVER_ERROR)
-                );
-            }
+        UserInternalResponse existingUser = userQueryService.findByCognitoIdOrNull(cognitoId);
+        if (existingUser != null) {
+            return existingUser.getId();
         }
+        log.info("[Auth][SignIn]: Create user");
+        String fullName = jwt.getClaim(FULL_NAME_COGNITO_FIELD);
+        UserCreateRequest dto = UserCreateRequest.builder()
+                .email(email)
+                .fullName(fullName)
+                .cognitoId(cognitoId)
+                .build();
+        UserCreateResponse createdUser = userCommandService.create(dto);
+        if (createdUser == null) {
+            throw new InternalServerErrorException(
+                    ErrorMessageCode.INTERNAL_SERVER_ERROR,
+                    mr.resolve(ErrorMessageCode.INTERNAL_SERVER_ERROR)
+            );
+        }
+        return userQueryService.findByCognitoIdOrNull(cognitoId).getId();
     }
 
     private TokenResponse buildTokenResponse(AuthenticationResultType auth) {
@@ -123,24 +133,44 @@ public class AuthServiceImpl implements IAuthService {
     }
 
     @Override
-    public TokenResponse refreshToken(String token) {
+    public TokenResponse refreshToken(RefreshTokenRequest request) {
         try {
-            log.info("[Auth][RefreshToken]: Start {}", token);
+            log.info("[Auth][RefreshToken]: Start");
 
-            if (token == null) {
+            if (request.getToken() == null) {
                 throw new BadRequestException(
                         ErrorMessageCode.BAD_REQUEST,
                         mr.resolve(ErrorMessageCode.BAD_REQUEST),
                         new RuntimeException("Refresh token is null")
                 );
             }
+
+            UserSession session = userSessionService.findByRefreshToken(request.getToken());
+
+            CognitoRefreshTokenRequest req = CognitoRefreshTokenRequest.builder()
+                    .token(request.getToken())
+                    .username(session.getCognitoId())
+                    .build();
+            AuthenticationResultType authRes = cognitoService.refreshToken(req);
+
             log.info("[Auth][RefreshToken]: Success");
-            AuthenticationResultType authRes = cognitoService.refreshToken(token);
             return buildTokenResponse(authRes);
         } catch (Exception e) {
             log.error("[Auth][RefreshToken]: Error {}", e.getMessage());
             e.printStackTrace();
             throw e;
+        }
+    }
+
+    @Override
+    public void signOut() {
+        try {
+            log.info("[Auth][SignOut]: Start");
+
+            log.info("[Auth][SignOut]: Success");
+        } catch (Exception e) {
+            log.error("[Auth][SignOut]: Error {}", e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -169,6 +199,4 @@ public class AuthServiceImpl implements IAuthService {
             throw e;
         }
     }
-
-
 }

@@ -6,7 +6,7 @@ import com.nhantic.trelloapi.dto.response.BoardCreateResponse;
 import com.nhantic.trelloapi.dto.response.BoardResponse;
 import com.nhantic.trelloapi.dto.response.Response;
 import com.nhantic.trelloapi.event.BoardCreateEvent;
-import com.nhantic.trelloapi.helper.BuildCreatedByFromJwt;
+import com.nhantic.trelloapi.helper.GetUserFromJwt;
 import com.nhantic.trelloapi.helper.MessageResolver;
 import com.nhantic.trelloapi.service.IBoardCommandService;
 import com.nhantic.trelloapi.service.IBoardQueryService;
@@ -70,7 +70,7 @@ public class BoardController {
     )
     @PostMapping()
     public ResponseEntity<?> create(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody BoardCreateRequest request) {
-        String createdBy = BuildCreatedByFromJwt.execute(userQueryService, mr, jwt);
+        String createdBy = GetUserFromJwt.execute(userQueryService, mr, jwt);
         request.setCreatedBy(createdBy);
         BoardCreateResponse board = boardCommandService.create(request);
 
@@ -135,6 +135,28 @@ public class BoardController {
         return ResponseEntity.ok(res);
     }
 
+    @Operation(
+            summary = "List boards",
+            description = "Retrieve all boards accessible by the current user, with optional search by name",
+            parameters = {
+                    @Parameter(
+                            name = "search",
+                            description = "Optional keyword to filter boards by name"
+                    )
+            },
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Boards retrieved successfully",
+                            content = @Content(schema = @Schema(implementation = Response.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Unauthorized",
+                            content = @Content(schema = @Schema())
+                    )
+            }
+    )
     @GetMapping()
     public ResponseEntity<?> list(@RequestParam(name = "search", required = false) String search, @AuthenticationPrincipal Jwt jwt) {
         String cognitoId = jwt.getSubject();

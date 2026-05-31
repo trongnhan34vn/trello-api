@@ -1,10 +1,8 @@
 package com.nhantic.trelloapi.service.impl;
 
 import com.nhantic.trelloapi.constant.ErrorMessageCode;
+import com.nhantic.trelloapi.dto.request.*;
 import com.nhantic.trelloapi.dto.request.ChangePasswordRequest;
-import com.nhantic.trelloapi.dto.request.CognitoConfirmSignUpRequest;
-import com.nhantic.trelloapi.dto.request.CognitoSignInRequest;
-import com.nhantic.trelloapi.dto.request.CognitoSignUpRequest;
 import com.nhantic.trelloapi.exception.BadRequestException;
 import com.nhantic.trelloapi.exception.ConflictException;
 import com.nhantic.trelloapi.exception.InternalServerErrorException;
@@ -18,6 +16,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.*;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.ConfirmSignUpRequest;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.SignUpRequest;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -130,12 +130,21 @@ public class CognitoServiceImpl implements ICognitoService {
     }
 
     @Override
-    public AuthenticationResultType refreshToken(String token) {
+    public AuthenticationResultType refreshToken(CognitoRefreshTokenRequest req) {
         try {
-            log.info("[Cognito][refreshToken]: {}", token);
+            log.info("[Cognito][refreshToken]: username=[{}]", req.getUsername());
+            String secretHash =
+                    CognitoSecretHash.generateSecretHash(
+                            req.getUsername(),
+                            CLIENT_ID,
+                            CLIENT_SECRET
+                    );
 
             Map<String, String> authParams = new HashMap<>();
-            authParams.put("REFRESH_TOKEN", token);
+
+            authParams.put("REFRESH_TOKEN", req.getToken());
+            authParams.put("USERNAME", req.getUsername());
+            authParams.put("SECRET_HASH", secretHash);
 
             InitiateAuthRequest request = InitiateAuthRequest.builder()
                     .authFlow(AuthFlowType.REFRESH_TOKEN_AUTH)

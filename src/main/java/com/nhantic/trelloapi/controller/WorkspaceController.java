@@ -1,11 +1,9 @@
 package com.nhantic.trelloapi.controller;
 
-import com.nhantic.trelloapi.constant.ErrorMessageCode;
 import com.nhantic.trelloapi.constant.SuccessMessageCode;
 import com.nhantic.trelloapi.dto.request.WorkspaceCreateRequest;
 import com.nhantic.trelloapi.dto.response.*;
-import com.nhantic.trelloapi.exception.BadRequestException;
-import com.nhantic.trelloapi.helper.BuildCreatedByFromJwt;
+import com.nhantic.trelloapi.helper.GetUserFromJwt;
 import com.nhantic.trelloapi.helper.MessageResolver;
 import com.nhantic.trelloapi.service.IUserQueryService;
 import com.nhantic.trelloapi.service.IWorkspaceCommandService;
@@ -103,7 +101,7 @@ public class WorkspaceController {
     )
     @PostMapping()
     public ResponseEntity<?> create(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody WorkspaceCreateRequest req) {
-        String createdBy = BuildCreatedByFromJwt.execute(userQueryService, mr, jwt);
+        String createdBy = GetUserFromJwt.execute(userQueryService, mr, jwt);
 
         req.setCreatedBy(createdBy);
         WorkspaceCreateResponse ws = workspaceCommandService.create(req);

@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface IUserQueryService {
     UserInternalResponse findByCognitoId(String cognitoId);
+    UserInternalResponse findByCognitoIdOrNull(String cognitoId);
     boolean existsByCognitoId(String cognitoId);
     UserResponse getMe(Jwt jwt);
     List<UserResponse> findAll(String search, String current);

@@ -8,7 +8,7 @@ import com.nhantic.trelloapi.dto.response.ListResponse;
 import com.nhantic.trelloapi.dto.response.ListUpdateResponse;
 import com.nhantic.trelloapi.dto.response.Response;
 import com.nhantic.trelloapi.event.ListCreateEvent;
-import com.nhantic.trelloapi.helper.BuildCreatedByFromJwt;
+import com.nhantic.trelloapi.helper.GetUserFromJwt;
 import com.nhantic.trelloapi.helper.MessageResolver;
 import com.nhantic.trelloapi.service.IListCommandService;
 import com.nhantic.trelloapi.service.IListQueryService;
@@ -72,7 +72,7 @@ public class ListController {
     )
     @PostMapping()
     public ResponseEntity<?> create(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody ListCreateRequest request) {
-        String createdBy = BuildCreatedByFromJwt.execute(userQueryService, mr, jwt);
+        String createdBy = GetUserFromJwt.execute(userQueryService, mr, jwt);
         request.setCreatedBy(createdBy);
         ListCreateResponse list = listCommandService.create(request);
         ListCreateEvent listCreateEvent = ListCreateEvent.builder()
@@ -130,7 +130,7 @@ public class ListController {
     )
     @PatchMapping("/{id}")
     public ResponseEntity<?> update(@AuthenticationPrincipal Jwt jwt, @PathVariable String id, @Valid @RequestBody ListUpdateRequest request) {
-        String updatedBy = BuildCreatedByFromJwt.execute(userQueryService, mr, jwt);
+        String updatedBy = GetUserFromJwt.execute(userQueryService, mr, jwt);
         request.setUpdatedBy(updatedBy);
         request.setId(id);
         ListUpdateResponse list = listCommandService.update(request);
@@ -144,6 +144,29 @@ public class ListController {
     }
 
 
+    @Operation(
+            summary = "Get lists by board",
+            description = "Retrieve all lists belonging to a specific board",
+            parameters = {
+                    @Parameter(
+                            name = "boardId",
+                            description = "Board ID to filter lists",
+                            required = true
+                    )
+            },
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lists retrieved successfully",
+                            content = @Content(schema = @Schema(implementation = Response.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Unauthorized",
+                            content = @Content(schema = @Schema())
+                    )
+            }
+    )
     @GetMapping()
     public ResponseEntity<?> get(@RequestParam String boardId) {
         List<ListResponse> lists = listQueryService.findByBoardId(boardId);
@@ -156,6 +179,34 @@ public class ListController {
         return ResponseEntity.ok(res);
     }
 
+    @Operation(
+            summary = "Delete list",
+            description = "Delete a list by ID",
+            parameters = {
+                    @Parameter(
+                            name = "id",
+                            description = "List ID",
+                            required = true
+                    )
+            },
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "List deleted successfully",
+                            content = @Content(schema = @Schema(implementation = Response.class))
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Unauthorized",
+                            content = @Content(schema = @Schema())
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "List not found",
+                            content = @Content(schema = @Schema())
+                    )
+            }
+    )
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable String id) {
         listCommandService.delete(id);
