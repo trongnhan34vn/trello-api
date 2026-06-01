@@ -6,7 +6,7 @@ import com.nhantic.trelloapi.dto.request.ChecklistItemUpdateRequest;
 import com.nhantic.trelloapi.dto.response.ChecklistItemCreateResponse;
 import com.nhantic.trelloapi.dto.response.ChecklistItemUpdateResponse;
 import com.nhantic.trelloapi.dto.response.Response;
-import com.nhantic.trelloapi.helper.BuildCreatedByFromJwt;
+import com.nhantic.trelloapi.helper.GetUserFromJwt;
 import com.nhantic.trelloapi.helper.MessageResolver;
 import com.nhantic.trelloapi.service.IChecklistItemCommandService;
 import com.nhantic.trelloapi.service.IUserQueryService;
@@ -64,7 +64,7 @@ public class ChecklistItemController {
     )
     @PostMapping()
     public ResponseEntity<?> create (@RequestBody @Valid ChecklistItemCreateRequest request, @AuthenticationPrincipal Jwt jwt) {
-        String createdBy = BuildCreatedByFromJwt.execute(userQueryService, mr, jwt);
+        String createdBy = GetUserFromJwt.execute(userQueryService, mr, jwt);
         request.setCreatedBy(createdBy);
         ChecklistItemCreateResponse checklist = checklistItemCommandService.create(request);
         Response res = Response.builder()
@@ -113,7 +113,7 @@ public class ChecklistItemController {
     )
     @PatchMapping("/{id}")
     public ResponseEntity<?> update(@RequestBody ChecklistItemUpdateRequest request, @AuthenticationPrincipal Jwt jwt, @PathVariable String id) {
-        String updatedBy = BuildCreatedByFromJwt.execute(userQueryService, mr, jwt);
+        String updatedBy = GetUserFromJwt.execute(userQueryService, mr, jwt);
         request.setUpdatedBy(updatedBy);
         request.setId(id);
 

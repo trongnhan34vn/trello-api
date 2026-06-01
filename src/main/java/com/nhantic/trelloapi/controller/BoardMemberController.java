@@ -5,13 +5,11 @@ import com.nhantic.trelloapi.dto.request.BoardMemberCreateRequest;
 import com.nhantic.trelloapi.dto.response.BoardMemberCreateResponse;
 import com.nhantic.trelloapi.dto.response.BoardMemberResponse;
 import com.nhantic.trelloapi.dto.response.Response;
-import com.nhantic.trelloapi.dto.response.WorkspaceMemberResponse;
-import com.nhantic.trelloapi.helper.BuildCreatedByFromJwt;
+import com.nhantic.trelloapi.helper.GetUserFromJwt;
 import com.nhantic.trelloapi.helper.MessageResolver;
 import com.nhantic.trelloapi.service.IBoardMemberCommandService;
 import com.nhantic.trelloapi.service.IBoardMemberQueryService;
 import com.nhantic.trelloapi.service.IUserQueryService;
-import com.nhantic.trelloapi.service.IWorkspaceMemberQueryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -110,7 +108,7 @@ public class BoardMemberController {
     )
     @PostMapping()
     public ResponseEntity<?> create(@RequestBody @Valid BoardMemberCreateRequest request, @AuthenticationPrincipal Jwt jwt) {
-        String createdBy = BuildCreatedByFromJwt.execute(userQueryService, mr, jwt);
+        String createdBy = GetUserFromJwt.execute(userQueryService, mr, jwt);
         request.setCreatedBy(createdBy);
         List<BoardMemberCreateResponse> boards = boardMemberCommandService.create(request);
         Response response = Response.builder()

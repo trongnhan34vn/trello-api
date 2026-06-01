@@ -76,6 +76,19 @@ public class UserServiceImpl implements IUserCommandService, IUserQueryService {
     }
 
     @Override
+    public UserInternalResponse findByCognitoIdOrNull(String cognitoId) {
+        return userRepository.findByCognitoId(cognitoId).map(user -> UserInternalResponse.builder()
+                .id(user.getId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .avatarUrl(user.getAvatarUrl())
+                .cognitoId(cognitoId)
+                .createdAt(user.getCreatedAt().toString())
+                .updatedAt(user.getUpdatedAt().toString())
+                .build()).orElse(null);
+    }
+
+    @Override
     public boolean existsByCognitoId(String cognitoId) {
         return userRepository.existsByCognitoId(cognitoId);
     }

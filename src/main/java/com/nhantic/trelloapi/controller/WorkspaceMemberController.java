@@ -5,7 +5,7 @@ import com.nhantic.trelloapi.dto.request.WorkspaceMemberCreateRequest;
 import com.nhantic.trelloapi.dto.response.Response;
 import com.nhantic.trelloapi.dto.response.WorkspaceMemberCreateResponse;
 import com.nhantic.trelloapi.dto.response.WorkspaceMemberResponse;
-import com.nhantic.trelloapi.helper.BuildCreatedByFromJwt;
+import com.nhantic.trelloapi.helper.GetUserFromJwt;
 import com.nhantic.trelloapi.helper.MessageResolver;
 import com.nhantic.trelloapi.service.IUserQueryService;
 import com.nhantic.trelloapi.service.IWorkspaceMemberCommandService;
@@ -104,7 +104,7 @@ public class WorkspaceMemberController {
     )
     @PostMapping()
     public ResponseEntity<?> create(@RequestBody @Valid WorkspaceMemberCreateRequest request, @AuthenticationPrincipal Jwt jwt) {
-        String createdBy = BuildCreatedByFromJwt.execute(userQueryService, mr, jwt);
+        String createdBy = GetUserFromJwt.execute(userQueryService, mr, jwt);
         request.setCreatedBy(createdBy);
         List<WorkspaceMemberCreateResponse> members = workspaceMemberCommandService.create(request);
         Response response = Response.builder()
