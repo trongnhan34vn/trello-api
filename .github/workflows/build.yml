@@ -30,6 +30,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "target/*.jar"
           target: "/home/ubuntu/app"
+          strip_components: 1
 
       - name: Deploy app
         uses: appleboy/ssh-action@v1.0.3
@@ -41,8 +42,8 @@ jobs:
             cat > /home/ubuntu/app/.env << 'EOF'
             ${{ secrets.ENV_FILE }}
             EOF
-      
-            JAR_FILE=$(ls /home/ubuntu/app/target/*.jar | grep -v 'original' | head -1)
+
+            JAR_FILE=$(ls /home/ubuntu/app/*.jar | grep -v 'original' | grep -v 'app.jar' | head -1)
             cp "$JAR_FILE" /home/ubuntu/app/app.jar
       
             sudo systemctl restart nello-api
