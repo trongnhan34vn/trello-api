@@ -1,9 +1,9 @@
 version: "3.9"
 
 services:
-  trello-db:
+  nello-db:
     image: postgres:15
-    container_name: ${PG_CONTAINER_NAME}
+    container_name: ${PG_DB_CONTAINER_NAME}
     restart: always
     env_file:
       - .env
@@ -12,14 +12,30 @@ services:
       POSTGRES_PASSWORD: ${PG_PASSWORD}
       POSTGRES_DB: ${PG_DATABASE}
     ports:
-      - "${PG_PORT}:5432"  # host:container, host dùng 5434
+      - "${PG_PORT}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
-      - trello-network
+      - nello-network
+
+  nello-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ${SERVER_NAME}
+    restart: always
+    depends_on:
+      - nello-db
+    env_file:
+      - .env
+    ports:
+      - "${SERVER_PORT}:8080"
+    networks:
+      - nello-network
+
 volumes:
   pgdata:
 
 networks:
-  trello-network:
+  nello-network:
     driver: bridge
